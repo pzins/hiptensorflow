@@ -20,7 +20,8 @@ limitations under the License.
 #define EIGEN_USE_GPU
 
 #include "tensorflow/core/common_runtime/gpu/gpu_device.h"
-
+#include "tensorflow/core/common_runtime/bfc_allocator.h"
+#include "tensorflow/core/CXLActivityLogger.h"
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
@@ -308,6 +309,11 @@ Status BaseGPUDevice::FillContextMap(const Graph* graph,
 }
 
 void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
+  AllocatorStats s;
+  dynamic_cast<BFCAllocator*>(gpu_allocator_)->GetStats(&s);
+  std::cout << "77777777" << s.DebugString() << std::endl;
+  std::string tmp = std::to_string(s.bytes_in_use) + "_" + std::to_string(s.num_allocs);
+  amdtBeginMarker(tmp.c_str(), "Allocations", "");
   // ScopedActivity is cheap when tracing is not active, but we
   // can avoid computing the Hash64.
   // TODO(pbar) This would no longer be needed if Ops have a unique id.
@@ -393,6 +399,7 @@ void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
       }
     }
   }
+  amdtEndMarkerEx(tmp.c_str(), "Allocations", "");
 }
 
 void BaseGPUDevice::ConsumeListOfAccessedTensors(

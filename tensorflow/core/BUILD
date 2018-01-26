@@ -1098,6 +1098,7 @@ cc_library(
                 "platform/*.cc",
                 "platform/profile_utils/**/*.h",
                 "platform/profile_utils/**/*.cc",
+                "eigenTracer.o",
             ],
             exclude = [
                 "**/*test*",
@@ -1163,7 +1164,7 @@ cc_library(
     ],
     copts = tf_copts(),
     defines = tf_additional_lib_defines(),
-    linkopts = ["-ldl"],
+    linkopts = ["-ldl", "-llttng-ust"],
     deps = tf_additional_lib_deps() + [
         ":lib_proto_parsing",
         ":protos_all_cc",
@@ -1276,6 +1277,7 @@ tf_cuda_library(
         "util/presized_cuckoo_map.h",
         "util/tensor_slice_set.h",
         "util/tensor_slice_util.h",
+        "CXLActivityLogger.h"
     ],
     copts = tf_copts(),
     linkopts = [
@@ -1355,6 +1357,8 @@ tf_cuda_library(
             "public/session.h",
             "public/session_options.h",
             "public/version.h",
+            "tensorflowTracer.o",
+            "CXLActivityLogger.h",
         ],
         exclude = [
             "**/*test*",
@@ -1369,6 +1373,7 @@ tf_cuda_library(
             "common_runtime/*.h",
             "framework/versions.h",
             "graph/**/*.h",
+            "tensorflowTracer.h",
         ],
         exclude = [
             "**/*test*",
@@ -1376,7 +1381,7 @@ tf_cuda_library(
             "common_runtime/gpu_device_context.h",
         ],
     ),
-    copts = tf_copts(),
+    copts = tf_copts() + ["-I tensorflow/core"],
     deps = [
         ":framework",
         ":framework_internal",
@@ -1391,6 +1396,7 @@ tf_cuda_library(
         "//tensorflow/core/kernels:required",
     ] + tf_additional_core_deps(),
     alwayslink = 1,
+    linkopts = ["-llttng-ust", "-ldl"],
 )
 
 # This library is deprecated and no longer publicly available.
@@ -1409,9 +1415,9 @@ cc_library(
 
 tf_cuda_library(
     name = "direct_session_internal",
-    srcs = ["common_runtime/direct_session.cc"],
+    srcs = ["common_runtime/direct_session.cc", "CXLActivityLogger.h"],
     hdrs = ["common_runtime/direct_session.h"],
-    copts = tf_copts(),
+    copts = tf_copts() + ["-I tensorflow/core"],
     cuda_deps = [
         ":gpu_tracer",
     ],

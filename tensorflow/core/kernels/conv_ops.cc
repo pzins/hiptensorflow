@@ -665,7 +665,7 @@ void LaunchConv2DOp<GPUDevice, T>::launch(
 
 
     AutoTuneConv::GetInstance()->Insert(conv_parameters, algorithm_config);
-  }
+} else {
 
   CudnnScratchAllocator scratch_allocator(ConvolveScratchSize, ctx);
   bool cudnn_launch_status =
@@ -681,7 +681,7 @@ void LaunchConv2DOp<GPUDevice, T>::launch(
         "cuDNN launch failure : input shape(", input.shape().DebugString(),
         ") filter shape(", filter.shape().DebugString(), ")"));
   }
-
+}
   // Convert the output tensor back from NHWC to NCHW.
   if (data_format == FORMAT_NHWC) {
     functor::NCHWToNHWC<GPUDevice, T, 4>()(

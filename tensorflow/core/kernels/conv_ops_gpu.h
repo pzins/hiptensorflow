@@ -69,6 +69,24 @@ class ConvParameters {
   }
   uint64 hash() const { return hash_code_; }
 
+  void printConvParam() {
+      std::cout << "============ Conv Param ============" << std::endl;
+      std::cout << "batch_ : " << batch_ << std::endl;
+      std::cout << "in_depths_ : " << in_depths_ << std::endl;
+      std::cout << "in_rows_ : " << in_rows_ << std::endl;
+      std::cout << "in_cols_ : " << in_cols_ << std::endl;
+      std::cout << "out_depths_ : " << out_depths_ << std::endl;
+      std::cout << "filter_rows_ : " << filter_rows_ << std::endl;
+      std::cout << "filter_cols_ : " << filter_cols_ << std::endl;
+      std::cout << "stride_rows_ : " << stride_rows_ << std::endl;
+      std::cout << "stride_cols_ : " << stride_cols_ << std::endl;
+      std::cout << "padding_rows_ : " << padding_rows_ << std::endl;
+      std::cout << "padding_cols_ : " << padding_cols_ << std::endl;
+      std::cout << "device_id_ : " << device_id_ << std::endl;
+      std::cout << "hash_code_ : " << hash_code_ << std::endl;
+      std::cout << "====================================" << std::endl;
+  }
+
  private:
   typedef std::tuple<int64, int64, int64, int64, int64, int64, int64, int64,
                      int64, int64, int64, int>

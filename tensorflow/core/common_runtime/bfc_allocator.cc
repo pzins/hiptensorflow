@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include <sstream>
 #include "tensorflow/core/common_runtime/bfc_allocator.h"
 
 #include "tensorflow/core/common_runtime/allocator_retry.h"
@@ -168,14 +168,17 @@ bool BFCAllocator::Extend(size_t rounded_bytes) {
 }
 
 BFCAllocator::ChunkHandle BFCAllocator::AllocateChunk() {
+  amdtBeginMarker("AllocateChunk", "BFCAllocator", "");
   if (free_chunks_list_ != kInvalidChunkHandle) {
     ChunkHandle h = free_chunks_list_;
     Chunk* c = ChunkFromHandle(h);
     free_chunks_list_ = c->next;
+    amdtEndMarkerEx("AllocateChunk", "BFCAllocator", "");
     return h;
   } else {
     ChunkHandle h = chunks_.size();
     chunks_.resize(h + 1);
+    amdtEndMarkerEx("AllocateChunk", "BFCAllocator", "");
     return h;
   }
 }
@@ -254,7 +257,14 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
 
   mutex_lock l(lock_);
   void* ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
+
+  std::stringstream ss;
+  ss<<ptr;
+  std::string s = "AllocateRawInternal_" + std::to_string(num_bytes) + "_" + ss.str();
+  amdtBeginMarker(s.c_str(), getName().c_str(), "");
+  
   if (ptr != nullptr) {
+      amdtEndMarkerEx(s.c_str(), getName().c_str(), "");
     return ptr;
   }
 
@@ -262,6 +272,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
   if (Extend(rounded_bytes)) {
     ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
     if (ptr != nullptr) {
+        amdtEndMarkerEx(s.c_str(), getName().c_str(), "");
       return ptr;
     }
   }
@@ -276,6 +287,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
                  << strings::HumanReadableNumBytes(num_bytes)
                  << ".  See logs for memory state.";
   }
+  amdtEndMarkerEx(s.c_str(), "BFCAllocator", "");
   return nullptr;
 }
 
@@ -374,8 +386,14 @@ void BFCAllocator::DeallocateRaw(void* ptr) {
 }
 
 void BFCAllocator::DeallocateRawInternal(void* ptr) {
+    std::stringstream ss;
+    ss<<ptr;
+    std::string s = "DeallocateRawInternal_" + ss.str();
+    amdtBeginMarker(s.c_str(), getName().c_str(), "");
+    
   if (ptr == nullptr) {
     LOG(ERROR) << "tried to deallocate nullptr";
+    amdtEndMarkerEx(s.c_str(), getName().c_str(), "");
     return;
   }
   mutex_lock l(lock_);
@@ -390,6 +408,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
   }
+  amdtEndMarkerEx(s.c_str(), "BFCAllocator", "");
 }
 
 // Merges h1 and h2 when Chunk(h1)->next is h2 and Chunk(h2)->prev is c1.

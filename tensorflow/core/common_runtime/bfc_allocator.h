@@ -15,6 +15,7 @@ limitations under the License.
 
 #ifndef TENSORFLOW_COMMON_RUNTIME_BFC_ALLOCATOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_BFC_ALLOCATOR_H_
+#include "tensorflow/core/CXLActivityLogger.h"
 
 #include <memory>
 #include <string>
@@ -43,6 +44,7 @@ namespace tensorflow {
 // all requests to allocate memory go through this interface.
 class BFCAllocator : public VisitableAllocator {
  public:
+     virtual std::string getName(){return "BFCAllocator";}
   // Takes ownership of sub_allocator.
   BFCAllocator(SubAllocator* sub_allocator, size_t total_memory,
                bool allow_growth, const string& name);

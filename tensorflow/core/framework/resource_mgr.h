@@ -15,6 +15,7 @@ limitations under the License.
 
 #ifndef TENSORFLOW_FRAMEWORK_RESOURCE_MGR_H_
 #define TENSORFLOW_FRAMEWORK_RESOURCE_MGR_H_
+#include "tensorflow/core/CXLActivityLogger.h"
 
 #include <string>
 #include <typeindex>

@@ -16,7 +16,7 @@ limitations under the License.
 // Implements the StreamExecutor interface by passing through to its
 // implementation_ value (in pointer-to-implementation style), which
 // implements StreamExecutorInterface.
-
+#include <iostream>
 #include "tensorflow/stream_executor/stream_executor_pimpl.h"
 
 #include <atomic>
@@ -414,6 +414,7 @@ void *StreamExecutor::Allocate(uint64 size) {
   VLOG(1) << "Called StreamExecutor::Allocate(size=" << size << ") returns "
           << buf << StackTraceIfVLOG10();
   CreateAllocRecord(buf, size);
+  std::cout << "OL| StreamExecutor::Allocate " << size << std::endl;
 
   return buf;
 }
@@ -427,6 +428,7 @@ void *StreamExecutor::HostMemoryAllocate(uint64 size) {
   void *buffer = implementation_->HostMemoryAllocate(size);
   VLOG(1) << "Called StreamExecutor::HostMemoryAllocate(size=" << size
           << ") returns " << buffer << StackTraceIfVLOG10();
+  std::cout << "OL| StreamExecutor::HostMemoryAllocate " << size << std::endl;
   return buffer;
 }
 
@@ -487,6 +489,7 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(gpu_dst="
           << gpu_dst->opaque() << ", host_src=" << host_src << ", size=" << size
           << ") H2D" << StackTraceIfVLOG10();
+          std::cout << "OL| StreamExecutor::SynchronousMemcpy (H2D) " << size << std::endl;
 
   // Tracing overloaded methods is very difficult due to issues with type
   // inference on template args. Since use of these overloaded methods is
@@ -500,7 +503,7 @@ bool StreamExecutor::SynchronousMemcpy(void *host_dst,
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(host_dst=" << host_dst
           << ", gpu_src=" << gpu_src.opaque() << ", size=" << size << ") D2H"
           << StackTraceIfVLOG10();
-
+  std::cout << "OL| StreamExecutor::SynchronousMemcpy (D2H) " << size << std::endl;
   return implementation_->SynchronousMemcpy(host_dst, gpu_src, size);
 }
 
@@ -510,6 +513,7 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(gpu_dst="
           << gpu_dst->opaque() << ", gpu_src=" << gpu_src.opaque()
           << ", size=" << size << ") D2D" << StackTraceIfVLOG10();
+          std::cout << "OL| StreamExecutor::SynchronousMemcpy (D2D) " << size << std::endl;
 
   return implementation_->SynchronousMemcpyDeviceToDevice(gpu_dst, gpu_src,
                                                           size);
@@ -543,7 +547,6 @@ port::Status StreamExecutor::SynchronousMemcpyH2D(const void *host_src,
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpyH2D(host_src=" << host_src
           << ", size=" << size << ", gpu_dst" << gpu_dst->opaque() << ")"
           << StackTraceIfVLOG10();
-
   port::Status result{port::Status::OK()};
   SCOPED_TRACE(TraceListener::SynchronousMemcpyH2D,
                &result, host_src, size, gpu_dst);
@@ -561,11 +564,13 @@ port::Status StreamExecutor::SynchronousMemcpyH2D(const void *host_src,
 
 bool StreamExecutor::Memcpy(Stream *stream, void *host_dst,
                             const DeviceMemoryBase &gpu_src, uint64 size) {
+std::cout << "OL| StreamExecutor::Memcpy (D2H) " << size << std::endl;
   return implementation_->Memcpy(stream, host_dst, gpu_src, size);
 }
 
 bool StreamExecutor::Memcpy(Stream *stream, DeviceMemoryBase *gpu_dst,
                             const void *host_src, uint64 size) {
+std::cout << "OL| StreamExecutor::Memcpy (H2D) " << size << std::endl;
   return implementation_->Memcpy(stream, gpu_dst, host_src, size);
 }
 
@@ -573,6 +578,7 @@ bool StreamExecutor::MemcpyDeviceToDevice(Stream *stream,
                                           DeviceMemoryBase *gpu_dst,
                                           const DeviceMemoryBase &gpu_src,
                                           uint64 size) {
+  std::cout << "OL| StreamExecutor::Memcpy (D2D) " << size << std::endl;
   return implementation_->MemcpyDeviceToDevice(stream, gpu_dst, gpu_src, size);
 }
 

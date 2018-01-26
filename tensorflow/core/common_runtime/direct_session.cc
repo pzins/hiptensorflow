@@ -369,6 +369,7 @@ Status DirectSession::Run(const RunOptions& run_options,
                           const std::vector<string>& target_nodes,
                           std::vector<Tensor>* outputs,
                           RunMetadata* run_metadata) {
+  amdtBeginMarker("DirectSession::Run", "session.run()", "");
   TF_RETURN_IF_ERROR(CheckNotClosed());
   direct_session_runs->GetCell()->IncrementBy(1);
   {
@@ -555,7 +556,7 @@ Status DirectSession::Run(const RunOptions& run_options,
       exec_and_lib.graph->ToGraphDef(partition_graph_def);
     }
   }
-
+  amdtEndMarkerEx("DirectSession::Run", "session.run()","");
   return Status::OK();
 }
 

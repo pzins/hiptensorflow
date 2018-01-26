@@ -15,6 +15,7 @@ limitations under the License.
 
 #ifndef TENSORFLOW_COMMON_RUNTIME_GPU_GPU_BFC_ALLOCATOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_GPU_GPU_BFC_ALLOCATOR_H_
+#include "tensorflow/core/CXLActivityLogger.h"
 
 #include <memory>
 #include <string>
@@ -36,6 +37,7 @@ namespace tensorflow {
 // algorithm.
 class GPUBFCAllocator : public BFCAllocator {
  public:
+  virtual std::string getName(){return "GPUBFCAllocator";}
   // 'device_id' refers to the StreamExecutor ID of the device within
   // the process and must reference a valid ID in the process.
   GPUBFCAllocator(int device_id, size_t total_memory);
@@ -57,10 +59,12 @@ class GPUMemAllocator : public SubAllocator {
   ~GPUMemAllocator() override {}
 
   void* Alloc(size_t alignment, size_t num_bytes) override {
+      amdtBeginMarker("Alloc", "GPUBFCAllocator", "");
     void* ptr = nullptr;
     if (num_bytes > 0) {
       ptr = stream_exec_->AllocateArray<char>(num_bytes).opaque();
     }
+    amdtEndMarkerEx("Alloc", "GPUBFCAllocator", "");
     return ptr;
   }
 
