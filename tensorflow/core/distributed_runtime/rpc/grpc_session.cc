@@ -43,7 +43,7 @@ const size_t kSchemePrefixLength = strlen(kSchemePrefix);
 /* static */
 Status GrpcSession::Create(const SessionOptions& options,
                            std::unique_ptr<GrpcSession>* out_session) {
-                               std::cout << "grpc_session.cc GrpcSession::Create()" << std::endl;
+                               std::cout << "||| grpc_session.cc GrpcSession::Create()" << std::endl;
   std::unique_ptr<GrpcSession> ret(new GrpcSession(options));
   std::unique_ptr<MasterInterface> master;
   // For testing, we enable the client to disable the use of the local

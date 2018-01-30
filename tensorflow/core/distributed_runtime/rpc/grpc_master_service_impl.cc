@@ -41,7 +41,7 @@ static const char* grpcMasterService_method_names[] = {
 std::unique_ptr<MasterService::Stub> MasterService::NewStub(
     const std::shared_ptr< ::grpc::ChannelInterface>& channel,
     const ::grpc::StubOptions& options) {
-        std::cout << "grpc_master_service_impl.cc MasterService::NewStub()" << std::endl;
+        std::cout << "||| grpc_master_service_impl.cc MasterService::NewStub()" << std::endl;
   std::unique_ptr<MasterService::Stub> stub(new MasterService::Stub(channel));
   return stub;
 }
