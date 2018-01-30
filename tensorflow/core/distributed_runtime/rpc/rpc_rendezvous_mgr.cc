@@ -40,7 +40,7 @@ class RpcRemoteRendezvous : public BaseRemoteRendezvous {
  public:
   RpcRemoteRendezvous(const WorkerEnv* env, WorkerCacheInterface* cache,
                       int64 step_id)
-      : BaseRemoteRendezvous(env, step_id, false), cache_(cache) {}
+      : BaseRemoteRendezvous(env, step_id, false), cache_(cache) {std::cout << "rpc_rendezvous_mgr.cc RpcRemoteRendezvous" << std::endl;}
 
  protected:
   void RecvFromRemoteAsync(const Rendezvous::ParsedKey& parsed,

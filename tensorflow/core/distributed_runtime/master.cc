@@ -58,6 +58,7 @@ Master::Master(MasterEnv* env, double session_gc_seconds)
       last_1000_steps_(1000),
       step_count_(0),
       session_gc_seconds_(session_gc_seconds) {
+          std::cout << "master.cc : Master()" << std::endl;
   // Right now, a master service must be co-located with a device.
   // Otherwise, fetches do not work.
   CHECK(!env->local_devices.empty());

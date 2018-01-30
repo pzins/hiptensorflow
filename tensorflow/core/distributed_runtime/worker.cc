@@ -25,7 +25,7 @@ limitations under the License.
 namespace tensorflow {
 
 Worker::Worker(WorkerEnv* env)
-    : env_(env), cancellation_manager_(new CancellationManager) {}
+    : env_(env), cancellation_manager_(new CancellationManager) {std::cout << "worker.cc Worker()" << std::endl;}
 
 void Worker::GetStatusAsync(const GetStatusRequest* request,
                             GetStatusResponse* response, StatusCallback done) {

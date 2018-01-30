@@ -66,6 +66,7 @@ Status PrepareCopy(Device* device, const DeviceContext* ctx, const Tensor& src,
                    const Tensor* dst,
                    const DeviceBase::GpuDeviceInfo** dev_info,
                    gpu::Stream** stream) {
+                       std::cout << "***PrepareCopy" << std::endl;
   if (device == nullptr) {
     return errors::Internal("Unexpected null device.");
   }
