@@ -48,7 +48,7 @@ class GrpcRemoteWorker : public WorkerInterface {
         recvtensor_(Method(GrpcWorkerMethod::kRecvTensor)),
         logging_(Method(GrpcWorkerMethod::kLogging)),
         tracing_(Method(GrpcWorkerMethod::kTracing)),
-        logger_(logger) {std::cout << "||| grpc_remote_worker.cc GrpcRemoteWorker()" << std::endl;}
+        logger_(logger) {std::cout << "??? GrpcRemoteWorker()" << std::endl;}
 
   ~GrpcRemoteWorker() override {}
 

@@ -52,7 +52,7 @@ namespace {
 class GrpcWorkerService : public AsyncServiceInterface {
  public:
   GrpcWorkerService(GrpcWorker* worker, ::grpc::ServerBuilder* builder)
-      : worker_(worker), is_shutdown_(false) {
+      : worker_(worker), is_shutdown_(false) {std::cout << "??? GrpcWorkerService()" << std::endl;
     builder->RegisterService(&worker_service_);
     cq_ = builder->AddCompletionQueue().release();
   }
@@ -107,6 +107,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   // This method blocks forever handling requests from the completion queue.
   void HandleRPCsLoop() override {
+      std::cout << "||| grpc_worker_service HandleRPCsLoop" << std::endl;
     // TODO(mrry): This may require performance engineering. We can
     // add more threads to service the completion queue, and add more
     // of various request types if they are short and frequent.
@@ -118,7 +119,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
     ENQUEUE_REQUEST(CleanupAll, false);
     ENQUEUE_REQUEST(RegisterGraph, false);
     ENQUEUE_REQUEST(DeregisterGraph, false);
-
+    
     // TODO(mrry): Determine a better policy for enqueuing the appropriate
     // number of each request type.
     for (int i = 0; i < 1000; ++i) {
@@ -130,7 +131,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
     for (int i = 0; i < 100; ++i) {
       ENQUEUE_REQUEST(CleanupGraph, false);
     }
-
+    
     ENQUEUE_REQUEST(Logging, false);
     ENQUEUE_REQUEST(Tracing, false);
 
@@ -138,6 +139,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
     bool ok;
 
     while (cq_->Next(&tag, &ok)) {
+        std::cout << "|||grpc_worker_service Next" << std::endl;
       UntypedCall<GrpcWorkerService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcWorkerService>::Tag*>(tag);
       if (callback_tag) {
@@ -176,6 +178,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
                           RequestMessage, ResponseMessage>;
 
   void GetStatusHandler(WorkerCall<GetStatusRequest, GetStatusResponse>* call) {
+      std::cout << "=== WorkerService GetStatusHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->GetStatus(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -185,6 +188,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupAllHandler(
       WorkerCall<CleanupAllRequest, CleanupAllResponse>* call) {
+          std::cout << "=== WorkerService CleanupAllHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->CleanupAll(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -194,6 +198,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RegisterGraphHandler(
       WorkerCall<RegisterGraphRequest, RegisterGraphResponse>* call) {
+          std::cout << "=== WorkerService RegisterGraphHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->RegisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -203,6 +208,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void DeregisterGraphHandler(
       WorkerCall<DeregisterGraphRequest, DeregisterGraphResponse>* call) {
+          std::cout << "=== WorkerService DeregisterGraphHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->DeregisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -211,6 +217,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void RunGraphHandler(WorkerCall<RunGraphRequest, RunGraphResponse>* call) {
+      std::cout << "=== WorkerService RunGraphHandler" << std::endl;
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       ProtoRunGraphRequest* wrapped_request =
@@ -233,6 +240,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RecvTensorHandlerRaw(
       WorkerCall<RecvTensorRequest, ::grpc::ByteBuffer>* call) {
+          std::cout << "=== WorkerService RecvTensorHandlerRaw" << std::endl;
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       call->SetCancelCallback([call_opts]() { call_opts->StartCancel(); });
@@ -248,6 +256,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupGraphHandler(
       WorkerCall<CleanupGraphRequest, CleanupGraphResponse>* call) {
+          std::cout << "=== WorkerService CleanupGraphHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->CleanupGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -256,6 +265,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void LoggingHandler(WorkerCall<LoggingRequest, LoggingResponse>* call) {
+      std::cout << "=== WorkerService LoggingHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->Logging(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -264,6 +274,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void TracingHandler(WorkerCall<TracingRequest, TracingResponse>* call) {
+      std::cout << "=== WorkerService TracingHandler" << std::endl;
     Schedule([this, call]() {
       Status s = worker_->Tracing(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -290,7 +301,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
 }  // namespace
 
-GrpcWorker::GrpcWorker(WorkerEnv* worker_env) : Worker(worker_env) {}
+GrpcWorker::GrpcWorker(WorkerEnv* worker_env) : Worker(worker_env) {std::cout << "??? GrpcWorker()" << std::endl;}
 
 // RecvTensorAsync: unlike the other Worker methods, which use protocol buffers
 // for a response object, to avoid extra protocol buffer serialization overhead
@@ -302,6 +313,7 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
   const int64 step_id = request->step_id();
   const string& key = request->rendezvous_key();
   TRACEPRINTF("RecvTensor: %lld %s", step_id, key.c_str());
+  std::cout << "<< PrepareRecvTensor : " << step_id << "  " << key.c_str() << std::endl;
   Rendezvous::ParsedKey parsed;
   Status s = Rendezvous::ParseKey(key, &parsed);
   Device* src_dev = nullptr;

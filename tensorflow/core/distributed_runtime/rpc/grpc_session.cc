@@ -31,7 +31,7 @@ namespace tensorflow {
 
 GrpcSession::GrpcSession(const SessionOptions& options)
     : options_(options),
-      current_graph_version_(-1) {}
+      current_graph_version_(-1) {std::cout << "??? GrpcSession()" << std::endl;}
 
 GrpcSession::~GrpcSession() {}
 
@@ -366,6 +366,7 @@ class GrpcSessionFactory : public SessionFactory {
 
   Session* NewSession(const SessionOptions& options) override {
     std::unique_ptr<GrpcSession> ret;
+    std::cout << "||| NEWSESSION" << std::endl;
     Status s = GrpcSession::Create(options, &ret);
     if (s.ok()) {
       return ret.release();

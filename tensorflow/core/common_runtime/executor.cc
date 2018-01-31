@@ -315,6 +315,13 @@ class GraphView {
 
 class ExecutorImpl : public Executor {
  public:
+     void debugPrint() {
+         std::cout << "Executor : nodes in the associated graph: " << graph_->num_node_ids() << std::endl;
+         for (int i = 0; i < graph_->num_node_ids(); i++) {
+             NodeItem* item = gview_.node(i);
+             std::cout << "@@@ " << item->node->name() << std::endl;
+         }
+     }
   ExecutorImpl(const LocalExecutorParams& p, const Graph* g)
       : params_(p), graph_(g) {
     CHECK(p.create_kernel != nullptr);
@@ -1383,9 +1390,11 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
     ready.push_back(TaggedNode{n, root_frame_, 0, false});
   }
   if (ready.empty()) {
+      std::cout << "<< ScheduleReady ready queue empty" << std::endl;
     done(Status::OK());
   } else {
     num_outstanding_ops_ = ready.size();
+    std::cout << "<< ScheduleReady ready queue has " << num_outstanding_ops_ << " elements." << std::endl;
     root_frame_->iterations[0]->outstanding_ops = ready.size();
     done_cb_ = done;
     // Schedule to run all the ready ops in thread pool.
@@ -1439,7 +1448,10 @@ struct ExecutorState::AsyncState {
 };
 
 void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
+    std::cout << "CALL TO PROCESS" << std::endl;
   const char* st = tagged_node.node->name().c_str();
+  std::cout << tagged_node.node->assigned_device_name() << std::endl;
+  std::cout << st << std::endl;
   tracepoint(tensorflowTracer, process_entry, st);
   const GraphView& gview = impl_->gview_;
   TaggedNodeSeq ready;
@@ -1477,6 +1489,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
   inline_ready.push_back(tagged_node);
   while (!inline_ready.empty()) {
     tagged_node = inline_ready.front();
+    std::cout << "process inline_ready node : " << tagged_node.node->name().c_str() << std::endl;
     tracepoint(tensorflowTracer, inline_ready_entry, tagged_node.node->name().c_str());
     inline_ready.pop_front();
     const Node* node = tagged_node.node;
@@ -1599,6 +1612,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           if (completed) Finish();
         };
         if (stats) nodestats::SetOpStart(stats);
+        std::cout << "Compute Async " << op_kernel->name().c_str() << " on "
+        << device->name() << std::endl;
         device->ComputeAsync(async, &state->ctx, done);
       } else {
         // Synchronous computes.
@@ -1607,6 +1622,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         std::string marker_name = "TF_kernel_sync";
         marker_name += device->name();
         amdtBeginMarker(op_kernel->name().c_str(), marker_name.c_str(),"");
+        std::cout << "Compute Sync " << op_kernel->name().c_str() << " on "
+        << device->name() << std::endl;
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
         amdtEndMarkerEx(op_kernel->name().c_str(), marker_name.c_str(),"");
         if (stats) nodestats::SetOpEnd(stats);

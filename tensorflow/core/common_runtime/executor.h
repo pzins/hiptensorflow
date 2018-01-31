@@ -46,7 +46,7 @@ class StepStatsCollector;
 class Executor {
  public:
   virtual ~Executor() {}
-
+  virtual void debugPrint(){}
   // RunAsync() executes the graph computation. "done" is run when the
   // graph computation completes. If any error happens during the
   // computation, "done" is run and the error is passed to "done".

@@ -54,6 +54,10 @@ class Rendezvous : public core::RefCounted {
   // Parses the key constructed by CreateKey and parse src/dst device
   // names into structures respectively.
   struct ParsedKey {
+      void print() const {
+          std::cout << "$$$ src_device :" << src_device.ToString() << std::endl;
+          std::cout << "$$$ dst_device :" << dst_device.ToString() << std::endl;
+      }
     StringPiece src_device;
     DeviceNameUtils::ParsedName src;
     uint64 src_incarnation = 0;

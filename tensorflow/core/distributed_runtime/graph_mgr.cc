@@ -346,6 +346,7 @@ void GraphMgr::ExecuteAsync(const string& handle, const int64 step_id,
                             CostGraphDef* cost_graph,
                             CancellationManager* cancellation_manager,
                             const NamedTensors& in, StatusCallback done) {
+                                std::cout << "||| GraphMgr::ExecuteAsync  " << step_id << std::endl;
   // Lookup an item. Holds one ref while executing.
   Item* item = nullptr;
   {
@@ -421,7 +422,11 @@ void GraphMgr::StartParallelExecutors(const string& handle, int64 step_id,
   //  args.runner = [pool](std::function<void()> fn) { pool->Schedule(fn); };
   args.runner = std::bind(&thread::ThreadPool::Schedule, pool, _1);
   for (const auto& unit : item->units) {
+      std::cout << "|||graph_mgr.cc RunAsync  " << args.step_id << std::endl;
+      std::cout << "||| " << unit.device->name() << std::endl;
+    unit.root->debugPrint();  
     unit.root->RunAsync(args, barrier->Get());
+    std::cout << std::endl;
   }
 }
 

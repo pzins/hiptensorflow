@@ -516,6 +516,7 @@ Status MasterSession::ReffedClientGraph::RunPartitions(
     CallOptions* call_opts, const RunStepRequestWrapper& req,
     MutableRunStepResponseWrapper* resp, CancellationManager* cm,
     const bool is_last_partial_run) {
+        std::cout << "MasterSession::ReffedClientGraph::RunPartitions" << std::endl;
   VLOG(2) << "RunPartitions step_id " << step_id << " execution_count "
           << execution_count;
   // Maps the names of fed tensors to their index in `req`.
@@ -992,6 +993,7 @@ MasterSession::MasterSession(const SessionOptions& opt, const MasterEnv* env,
       run_graphs_(5),
       partial_run_graphs_(5),
       cancellation_manager_(new CancellationManager) {
+          std::cout << "??? MasterSession()" << std::endl;
   UpdateLastAccessTime();
 
   swap(remote_devs_, *remote_devs);

@@ -25,7 +25,7 @@ limitations under the License.
 namespace tensorflow {
 
 Worker::Worker(WorkerEnv* env)
-    : env_(env), cancellation_manager_(new CancellationManager) {std::cout << "||| worker.cc Worker()" << std::endl;}
+    : env_(env), cancellation_manager_(new CancellationManager) {std::cout << "??? Worker()" << std::endl;}
 
 void Worker::GetStatusAsync(const GetStatusRequest* request,
                             GetStatusResponse* response, StatusCallback done) {
@@ -112,6 +112,7 @@ Status Worker::PrepareRunGraph(RunGraphRequestWrapper* req,
 void Worker::RunGraphAsync(CallOptions* opts, RunGraphRequestWrapper* request,
                            MutableRunGraphResponseWrapper* response,
                            StatusCallback done) {
+                               std::cout << "||| RunGraphAsync" << std::endl;
   if (request->is_partial()) {
     DoPartialRunGraph(opts, request, response, std::move(done));
   } else {
@@ -330,7 +331,7 @@ Status Worker::PrepareRecvTensor(const Rendezvous::ParsedKey& parsed,
   // Figures out which device the tensor is hosted on.
   TF_RETURN_IF_ERROR(
       env_->device_mgr->LookupDevice(parsed.src_device, src_dev));
-
+     parsed.print();
   // Does the device have the right incarnation number we expect?
   if ((*src_dev)->attributes().incarnation() != parsed.src_incarnation) {
     return errors::Aborted(

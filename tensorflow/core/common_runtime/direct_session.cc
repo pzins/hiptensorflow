@@ -126,6 +126,7 @@ class DirectSessionFactory : public SessionFactory {
   }
 
   Session* NewSession(const SessionOptions& options) override {
+      std::cout << "||| DirectSessionFactory::NewSession" << std::endl;
     // Must do this before the CPU allocator is created.
     if (options.config.graph_options().build_cost_model() > 0) {
       EnableCPUAllocatorFullStats(true);
@@ -228,6 +229,7 @@ DirectSession::DirectSession(const SessionOptions& options,
       factory_(factory),
       cancellation_manager_(new CancellationManager()),
       operation_timeout_in_ms_(options_.config.operation_timeout_in_ms()) {
+          std::cout << "|||DirectSession()" << std::endl;
   if (options_.config.session_inter_op_thread_pool_size() > 0) {
     for (int i = 0; i < options_.config.session_inter_op_thread_pool_size();
          ++i) {

@@ -48,6 +48,7 @@ class GrpcMasterService : public AsyncServiceInterface {
  public:
   GrpcMasterService(Master* master, ::grpc::ServerBuilder* builder)
       : master_impl_(master), is_shutdown_(false) {
+          std::cout << "??? GrpcMasterService()" << std::endl;
     builder->RegisterService(&master_service_);
     cq_ = builder->AddCompletionQueue().release();
   }
@@ -101,6 +102,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   } while (0)
 
   void HandleRPCsLoop() override {
+      std::cout << "||| grpc_master_service HandleRPCsLoop" << std::endl;
     ENQUEUE_REQUEST(CreateSession, true);
     ENQUEUE_REQUEST(ExtendSession, false);
     for (int i = 0; i < 100; ++i) {
@@ -114,6 +116,7 @@ class GrpcMasterService : public AsyncServiceInterface {
     void* tag;
     bool ok;
     while (cq_->Next(&tag, &ok)) {
+        std::cout << "|||grpc_master_service Next" << std::endl;
       UntypedCall<GrpcMasterService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcMasterService>::Tag*>(tag);
       if (callback_tag) {
@@ -142,6 +145,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   // RPC handler for creating a session.
   void CreateSessionHandler(
       MasterCall<CreateSessionRequest, CreateSessionResponse>* call) {
+          std::cout << "=== MasterService CreateSessionHandler" << std::endl;
     master_impl_->CreateSession(&call->request, &call->response,
                                 [call](const Status& status) {
                                   call->SendResponse(ToGrpcStatus(status));
@@ -152,6 +156,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   // RPC handler for extending a session.
   void ExtendSessionHandler(
       MasterCall<ExtendSessionRequest, ExtendSessionResponse>* call) {
+          std::cout << "=== MasterService ExtendSessionHandler" << std::endl;
     master_impl_->ExtendSession(&call->request, &call->response,
                                 [call](const Status& status) {
                                   call->SendResponse(ToGrpcStatus(status));
@@ -162,6 +167,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   // RPC handler for setting up a partial run call.
   void PartialRunSetupHandler(
       MasterCall<PartialRunSetupRequest, PartialRunSetupResponse>* call) {
+          std::cout << "=== MasterService PartialRunSetupHandler" << std::endl;
     master_impl_->PartialRunSetup(&call->request, &call->response,
                                   [call](const Status& status) {
                                     call->SendResponse(ToGrpcStatus(status));
@@ -171,6 +177,7 @@ class GrpcMasterService : public AsyncServiceInterface {
 
   // RPC handler for running one step in a session.
   void RunStepHandler(MasterCall<RunStepRequest, RunStepResponse>* call) {
+      std::cout << "=== MasterService RunStepHandler" << std::endl;
     CallOptions* call_opts = new CallOptions;
     RunStepRequestWrapper* wrapped_request =
         new ProtoRunStepRequest(&call->request);
@@ -191,6 +198,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   // RPC handler for deleting a session.
   void CloseSessionHandler(
       MasterCall<CloseSessionRequest, CloseSessionResponse>* call) {
+          std::cout << "=== MasterService CloseSessionHandler" << std::endl;
     master_impl_->CloseSession(&call->request, &call->response,
                                [call](const Status& status) {
                                  call->SendResponse(ToGrpcStatus(status));
@@ -201,6 +209,7 @@ class GrpcMasterService : public AsyncServiceInterface {
   // RPC handler for listing devices.
   void ListDevicesHandler(
       MasterCall<ListDevicesRequest, ListDevicesResponse>* call) {
+          std::cout << "=== MasterService ListDevicesHandler" << std::endl;
     master_impl_->ListDevices(&call->request, &call->response,
                               [call](const Status& status) {
                                 call->SendResponse(ToGrpcStatus(status));
@@ -210,6 +219,7 @@ class GrpcMasterService : public AsyncServiceInterface {
 
   // RPC handler for resetting all sessions.
   void ResetHandler(MasterCall<ResetRequest, ResetResponse>* call) {
+      std::cout << "=== MasterService ResetHandler" << std::endl;
     master_impl_->Reset(&call->request, &call->response,
                         [call](const Status& status) {
                           call->SendResponse(ToGrpcStatus(status));

@@ -42,7 +42,7 @@ Status WaitForNotification(CallOptions* call_options, Notification* n) {
 }
 }
 
-LocalMaster::LocalMaster(Master* master_impl) : master_impl_(master_impl) {}
+LocalMaster::LocalMaster(Master* master_impl) : master_impl_(master_impl) {std::cout << "??? LocalMaster()" << std::endl;}
 
 Status LocalMaster::CreateSession(CallOptions* call_options,
                                   const CreateSessionRequest* request,

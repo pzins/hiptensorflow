@@ -30,7 +30,7 @@ namespace tensorflow {
 class GrpcRemoteMaster : public MasterInterface {
  public:
   explicit GrpcRemoteMaster(SharedGrpcChannelPtr client_channel)
-      : stub_(grpc::MasterService::NewStub(client_channel)) {std::cout << "||| grpc_remote_master.cc GrpcRemoteMaster()" << std::endl;}
+      : stub_(grpc::MasterService::NewStub(client_channel)) {std::cout << "??? GrpcRemoteMaster()" << std::endl;}
 
   ~GrpcRemoteMaster() override {}
 

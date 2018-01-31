@@ -152,6 +152,7 @@ class Call : public UntypedCall<Service> {
   virtual ~Call() {}
 
   void RequestReceived(Service* service, bool ok) override {
+      std::cout << "|||Request Received" << std::endl;
     if (ok) {
       this->Ref();
       (service->*handle_request_function_)(this);
@@ -159,6 +160,7 @@ class Call : public UntypedCall<Service> {
   }
 
   void SendResponse(::grpc::Status status) {
+    std::cout << "|||SendResponse" << std::endl;
     this->Ref();  // Ref for grpc; released in Tag callback.
     responder_.Finish(response, status, &response_sent_tag_);
     this->Unref();

@@ -57,6 +57,7 @@ class RemoteDevice : public Device {
 
 void NewRemoteDevices(Env* env, WorkerCacheInterface* worker_cache,
                       const string& worker_name, NewRemoteDevicesDone done) {
+                          std::cout << "||| remote_device.cc NewRemoteDevices()" << std::endl;
   WorkerInterface* wi = worker_cache->CreateWorker(worker_name);
   if (wi == nullptr) {
     std::vector<Device*> empty;
