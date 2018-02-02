@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include <iostream>
 #include "tensorflow/core/distributed_runtime/worker_cache_logger.h"
 
 #include "tensorflow/core/common_runtime/step_stats_collector.h"
@@ -86,6 +86,7 @@ void WorkerCacheLogger::RecordRecvTensor(int64 step_id, int64 start_usecs,
                                          const string& src_device,
                                          const string& dst_device,
                                          int64 bytes) {
+    std::cout << "WorkerCacheLogger::RecordRecvTensor" << std::endl;
   NodeExecStats* ns = new NodeExecStats;
   ns->set_node_name("RecvTensor");
   string byte_string = strings::StrCat("[", bytes, "B] ");

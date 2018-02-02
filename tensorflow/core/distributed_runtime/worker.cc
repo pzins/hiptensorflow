@@ -316,6 +316,7 @@ void Worker::CleanupAllAsync(const CleanupAllRequest* request,
 
 void Worker::LoggingAsync(const LoggingRequest* request,
                           LoggingResponse* response, StatusCallback done) {
+                              std::cout << "!!! Worker::LoggingAsync Unimplemented" << std::endl;
   done(errors::Unimplemented("Logging"));
 }
 

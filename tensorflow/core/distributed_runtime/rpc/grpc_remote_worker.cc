@@ -72,6 +72,7 @@ class GrpcRemoteWorker : public WorkerInterface {
 
   void RunGraphAsync(CallOptions* call_opts, const RunGraphRequest* request,
                      RunGraphResponse* response, StatusCallback done) override {
+    std::cout << "£££ RunGraphAsync => IssueRequest" << std::endl;
     IssueRequest(request, response, rungraph_, std::move(done), call_opts);
   }
   void RunGraphAsync(CallOptions* call_opts, RunGraphRequestWrapper* request,
@@ -168,6 +169,7 @@ class GrpcRemoteWorker : public WorkerInterface {
 
   void LoggingAsync(const LoggingRequest* request, LoggingResponse* response,
                     StatusCallback done) override {
+    std::cout << "!!! LoggingAsync" << std::endl;
     IssueRequest(request, response, logging_, done);
   }
 
@@ -230,6 +232,7 @@ class GrpcRemoteWorker : public WorkerInterface {
   void IssueRequest(const RequestMessage* request, ResponseMessage* response,
                     const ::grpc::RpcMethod& method, StatusCallback done,
                     CallOptions* call_opts = nullptr) {
+                        std::cout << "!!!IssueRequest" << std::endl;
     auto state = new RPCState<RequestMessage, ResponseMessage>(
         channel_.get(), cq_, method, *request, std::move(done), call_opts);
     state->StartRPC(response);

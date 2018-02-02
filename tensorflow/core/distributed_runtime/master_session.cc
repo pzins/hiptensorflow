@@ -144,6 +144,7 @@ class MasterSession::ReffedClientGraph : public core::RefCounted {
       mutex scoped_mu;
       BlockingCounter all_done(waiting_for);
       for (auto& p : partitions_) {
+          std::cout << "RetrieveLogs : " << p.name << std::endl;
         LoggingResponse* resp = new LoggingResponse;
         p.worker->LoggingAsync(
             &req, resp, [step_id, ss, resp, &scoped_mu, &waiting_for,
@@ -616,6 +617,7 @@ Status MasterSession::ReffedClientGraph::RunPartitions(
     const Part& part = partitions_[i];
     RunManyGraphs::Call* call = calls.get(i);
     TRACEPRINTF("Partition %d %s", i, part.name.c_str());
+    std::cout << "£££ " << i << "   " << part.name.c_str() << std::endl;
     part.worker->RunGraphAsync(
         &call->opts, call->req.get(), call->resp.get(),
         std::bind(&RunManyGraphs::WhenDone, &calls, i, std::placeholders::_1));
@@ -742,6 +744,7 @@ void MasterSession::ReffedClientGraph::ProcessStats(
     int64 step_id, PerStepState* pss,
     SimpleGraphExecutionState* execution_state, ProfileHandler* ph,
     const RunOptions& options, RunMetadata* resp) {
+        std::cout << "!!! ProcessStats" << std::endl;
   if (!pss->collect_costs && !pss->collect_timeline) return;
 
   // Out-of-band logging data is collected now, during post-processing.
@@ -786,15 +789,19 @@ void MasterSession::ReffedClientGraph::ProcessDeviceStats(
     ProfileHandler* ph, const SimpleGraphExecutionState* execution_state,
     const DeviceStepStats& ds, bool is_rpc) {
   const string& dev_name = ds.device();
+  std::cout << "!!! ProcessDeviceStats : Device " << dev_name << " reports stats for "
+            << ds.node_stats_size() << " nodes" << std::endl;
   VLOG(1) << "Device " << dev_name << " reports stats for "
           << ds.node_stats_size() << " nodes";
   for (const auto& ns : ds.node_stats()) {
     if (is_rpc) {
+        std::cout << "!!! is_rpc True" << std::endl;
       // We don't have access to a good Node pointer, so we rely on
       // sufficient data being present in the NodeExecStats.
       ph->RecordOneOp(dev_name, ns, true /*is_copy*/, "", ns.node_name(),
                       ns.timeline_label());
     } else {
+        std::cout << "!!! is_rpc False" << std::endl;
       const Node* node = execution_state->get_node_by_name(ns.node_name());
       const bool found_node_in_graph = node != nullptr;
       if (!found_node_in_graph && ns.timeline_label().empty()) {
@@ -1243,6 +1250,7 @@ Status MasterSession::BuildAndRegisterPartitions(ReffedClientGraph* rcg) {
 Status MasterSession::DoPartialRun(CallOptions* opts,
                                    const RunStepRequestWrapper& req,
                                    MutableRunStepResponseWrapper* resp) {
+                                       std::cout << "!!! DoPartialRun" << std::endl;
   const string& prun_handle = req.partial_run_handle();
   RunState* run_state = nullptr;
   {
@@ -1348,6 +1356,7 @@ Status MasterSession::DoPartialRun(CallOptions* opts,
 Status MasterSession::DoRunWithLocalExecution(
     CallOptions* opts, const RunStepRequestWrapper& req,
     MutableRunStepResponseWrapper* resp) {
+        std::cout << "!!! DoRunWithLocalExecution" << std::endl;
   VLOG(2) << "DoRunWithLocalExecution "
           << "req: " << req.DebugString();
   PerStepState pss;

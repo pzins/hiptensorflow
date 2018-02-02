@@ -267,7 +267,9 @@ class GrpcWorkerService : public AsyncServiceInterface {
   void LoggingHandler(WorkerCall<LoggingRequest, LoggingResponse>* call) {
       std::cout << "=== WorkerService LoggingHandler" << std::endl;
     Schedule([this, call]() {
+        std::cout << "!!! grpc_worker_service LoggingHandler()1" << std::endl;
       Status s = worker_->Logging(&call->request, &call->response);
+      std::cout << "!!! grpc_worker_service LoggingHandler()2" << std::endl;
       call->SendResponse(ToGrpcStatus(s));
     });
     ENQUEUE_REQUEST(Logging, false);

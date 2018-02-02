@@ -130,6 +130,7 @@ class WorkerInterface {
   }
 
   Status Logging(const LoggingRequest* request, LoggingResponse* response) {
+      std::cout << "!!! worker_interface Logging()" << std::endl;
     return CallAndWait(&ME::LoggingAsync, request, response);
   }
 
