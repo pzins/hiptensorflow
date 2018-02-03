@@ -74,6 +74,194 @@ TRACEPOINT_EVENT(
 )
 
 
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    session_start,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    session_end,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    operation_start,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    operation_end,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    allocate_chunk_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    allocate_chunk_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    allocate_raw_internal_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    allocate_raw_internal_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    deallocate_raw_internal_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    deallocate_raw_internal_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    do_create_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    do_create_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    cleanup_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    cleanup_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    gpu_bfc_alloc_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    gpu_bfc_alloc_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    gpu_device_compute_entry,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    gpu_device_compute_exit,
+    TP_ARGS(
+        const char*, my_string_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, my_string_arg)
+    )
+)
 
 
 #endif

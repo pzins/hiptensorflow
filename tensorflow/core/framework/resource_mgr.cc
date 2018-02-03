@@ -75,8 +75,7 @@ string ResourceMgr::DebugString() const {
 
 Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
                              const string& name, ResourceBase* resource) {
-  std::string tmp = "DoCreate_" + name;
-  amdtBeginMarker(tmp.c_str(), "ResourceMgr", "");
+  tracepoint(tensorflowTracer, do_create_entry, name.c_str());
   {
     mutex_lock l(mu_);
     Container** b = &containers_[container];
@@ -84,13 +83,12 @@ Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
       *b = new Container;
     }
     if ((*b)->insert({{type, name}, resource}).second) {
-        amdtEndMarkerEx(tmp.c_str(), "ResourceMgr", "");
+        tracepoint(tensorflowTracer, do_create_exit, name.c_str());
       return Status::OK();
     }
   }
   resource->Unref();
-  amdtEndMarkerEx(tmp.c_str(), "ResourceMgr", "");
-
+  tracepoint(tensorflowTracer, do_create_exit, name.c_str());
   return errors::AlreadyExists("Resource ", container, "/", name, "/",
                                type.name());
 }
@@ -136,18 +134,14 @@ Status ResourceMgr::DoDelete(const string& container, TypeIndex type,
 }
 
 Status ResourceMgr::Cleanup(const string& container) {
-    string s = "cleanup_" + container;
-    amdtBeginMarker(s.c_str(), "ResourceMgr", "");
-
-    std::cout << "------------ ResourceMgr::Cleanup " << container << std::endl;
-
+  tracepoint(tensorflowTracer, cleanup_entry, container.c_str());
   Container* b = nullptr;
   {
     mutex_lock l(mu_);
     auto iter = containers_.find(container);
     if (iter == containers_.end()) {
       // Nothing to cleanup, it's OK.
-      amdtEndMarkerEx(s.c_str(), "ResourceMgr", "0");
+      tracepoint(tensorflowTracer, cleanup_exit, container.c_str());
       return Status::OK();
     }
     b = iter->second;
@@ -158,7 +152,7 @@ Status ResourceMgr::Cleanup(const string& container) {
     p.second->Unref();
   }
   delete b;
-  amdtEndMarkerEx(s.c_str(), "ResourceMgr", "1");
+  tracepoint(tensorflowTracer, cleanup_exit, container.c_str());
   return Status::OK();
 }
 

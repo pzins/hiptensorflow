@@ -15,7 +15,7 @@ limitations under the License.
 
 #ifndef TENSORFLOW_COMMON_RUNTIME_BFC_ALLOCATOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_BFC_ALLOCATOR_H_
-#include "tensorflow/core/CXLActivityLogger.h"
+
 
 #include <memory>
 #include <string>

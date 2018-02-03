@@ -19,6 +19,8 @@ limitations under the License.
 #include "cuda/include/hip/hip_runtime.h"
 #define EIGEN_USE_GPU
 
+#include "tensorflow/core/tensorflowTracer.h"
+
 #include "tensorflow/core/common_runtime/gpu/gpu_device.h"
 #include "tensorflow/core/common_runtime/bfc_allocator.h"
 #include "tensorflow/core/CXLActivityLogger.h"
@@ -311,9 +313,8 @@ Status BaseGPUDevice::FillContextMap(const Graph* graph,
 void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
   AllocatorStats s;
   dynamic_cast<BFCAllocator*>(gpu_allocator_)->GetStats(&s);
-  std::cout << "77777777" << s.DebugString() << std::endl;
   std::string tmp = std::to_string(s.bytes_in_use) + "_" + std::to_string(s.num_allocs);
-  amdtBeginMarker(tmp.c_str(), "Allocations", "");
+  tracepoint(tensorflowTracer, gpu_device_compute_entry, tmp.c_str());
   // ScopedActivity is cheap when tracing is not active, but we
   // can avoid computing the Hash64.
   // TODO(pbar) This would no longer be needed if Ops have a unique id.
@@ -857,12 +858,12 @@ Status BaseGPUDeviceFactory::GetValidDeviceIds(
   }
 
   bool new_gpu_found = false;
-  
-  if(visible_gpu_order.size() > 1){ 
+
+  if(visible_gpu_order.size() > 1){
     LOG(ERROR) << "hipTensorflow currently only supports executation on single GPU. "
               << "Please set HIP_VISIBLE_DEVICES to choose the desired GPU Device.";
     exit(1);
-  }   
+  }
 
   for (int i = 0; i < visible_gpu_order.size(); ++i) {
     int gpu_id = visible_gpu_order[i];
@@ -956,7 +957,7 @@ Status BaseGPUDeviceFactory::GetValidDeviceIds(
                                       &device_capability.minor_part)) {
       continue;
     }
-    
+
 
     // Filter out slow GPUs. By default, GPUs with a lower multiprocessor
     // count than the fastest GPU are filtered out, unless they have 8 or more

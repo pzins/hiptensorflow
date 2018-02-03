@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 #include "tensorflow/core/tensorflowTracer.h"
-#include <thread>
 #include "tensorflow/core/common_runtime/executor.h"
 
 #include <atomic>
@@ -315,13 +314,6 @@ class GraphView {
 
 class ExecutorImpl : public Executor {
  public:
-     void debugPrint() {
-         std::cout << "Executor : nodes in the associated graph: " << graph_->num_node_ids() << std::endl;
-         for (int i = 0; i < graph_->num_node_ids(); i++) {
-             NodeItem* item = gview_.node(i);
-             std::cout << "@@@ " << item->node->name() << std::endl;
-         }
-     }
   ExecutorImpl(const LocalExecutorParams& p, const Graph* g)
       : params_(p), graph_(g) {
     CHECK(p.create_kernel != nullptr);
@@ -1572,6 +1564,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 
         auto done = [this, state]() {
           Device* device = impl_->params_.device;
+          std::string marker_name = "TF_kernel_async_" + device->name();
+          tracepoint(tensorflowTracer, operation_end, marker_name.c_str());
           NodeExecStats* stats = state->stats;      // Shorthand
           Entry* first_input = state->first_input;  // Shorthand
 
@@ -1611,23 +1605,19 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           delete state;
           if (completed) Finish();
         };
-        if (stats) nodestats::SetOpStart(stats);
-        std::cout << "Compute Async " << op_kernel->name().c_str() << " on "
-        << device->name() << std::endl;
+        nodestats::SetOpStart(stats);
+        std::string marker_name = "TF_kernel_async_" + device->name();
+        tracepoint(tensorflowTracer, operation_start, marker_name.c_str());
         device->ComputeAsync(async, &state->ctx, done);
       } else {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
-        if (stats) nodestats::SetOpStart(stats);
-        std::string marker_name = "TF_kernel_sync";
-        marker_name += device->name();
-        amdtBeginMarker(op_kernel->name().c_str(), marker_name.c_str(),"");
-        std::cout << "Compute Sync " << op_kernel->name().c_str() << " on "
-        << device->name() << std::endl;
+        std::string marker_name = "TF_kernel_sync_" + device->name();
+        nodestats::SetOpStart(stats);
+        tracepoint(tensorflowTracer, operation_start, marker_name.c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
-        amdtEndMarkerEx(op_kernel->name().c_str(), marker_name.c_str(),"");
-        if (stats) nodestats::SetOpEnd(stats);
-
+        tracepoint(tensorflowTracer, operation_end, marker_name.c_str());
+        nodestats::SetOpEnd(stats);
         s = ProcessOutputs(item, &ctx, &outputs, stats);
         if (s.ok() && impl_->device_record_tensor_accesses_) {
           // Get the list of all tensors accessed during the execution
