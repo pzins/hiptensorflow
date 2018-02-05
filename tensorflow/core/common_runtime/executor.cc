@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+#include "tensorflow/core/tensorflowTracer.h"
 
 #include "tensorflow/core/common_runtime/executor.h"
 
@@ -1438,6 +1439,8 @@ struct ExecutorState::AsyncState {
 };
 
 void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
+  const char* st = tagged_node.node->name().c_str();
+  tracepoint(tensorflowTracer, process_entry, st);
   const GraphView& gview = impl_->gview_;
   TaggedNodeSeq ready;
   TaggedNodeReadyQueue inline_ready;
@@ -1474,6 +1477,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
   inline_ready.push_back(tagged_node);
   while (!inline_ready.empty()) {
     tagged_node = inline_ready.front();
+    tracepoint(tensorflowTracer, inline_ready_entry, tagged_node.node->name().c_str());
     inline_ready.pop_front();
     const Node* node = tagged_node.node;
     FrameState* input_frame = tagged_node.input_frame;
@@ -1555,6 +1559,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 
         auto done = [this, state]() {
           Device* device = impl_->params_.device;
+          std::string marker_name = "TF_kernel_async_" + device->name();
+          tracepoint(tensorflowTracer, operation_end, marker_name.c_str());
           NodeExecStats* stats = state->stats;      // Shorthand
           Entry* first_input = state->first_input;  // Shorthand
 
@@ -1595,12 +1601,17 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           if (completed) Finish();
         };
         if (stats) nodestats::SetOpStart(stats);
+        std::string marker_name = "TF_kernel_async_" + device->name();
+        tracepoint(tensorflowTracer, operation_start, marker_name.c_str());
         device->ComputeAsync(async, &state->ctx, done);
       } else {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
+        std::string marker_name = "TF_kernel_sync_" + device->name();
         if (stats) nodestats::SetOpStart(stats);
+        tracepoint(tensorflowTracer, operation_start, marker_name.c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
+        tracepoint(tensorflowTracer, operation_end, marker_name.c_str());
         if (stats) nodestats::SetOpEnd(stats);
 
         s = ProcessOutputs(item, &ctx, &outputs, stats);
@@ -1636,8 +1647,9 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
       // Postprocess.
       completed = NodeDone(s, item.node, ready, stats, &inline_ready);
     }
+    tracepoint(tensorflowTracer, inline_ready_exit, tagged_node.node->name().c_str());
   }  // while !inline_ready.empty()
-
+  tracepoint(tensorflowTracer, process_exit, st);
   // This thread of computation is done if completed = true.
   if (completed) Finish();
 }
@@ -2327,6 +2339,7 @@ void ExecutorState::FrameState::ActivateNodes(const NodeItem* item,
     // TODO(yuanbyu): We don't need this if we require the subgraph
     // given to an executor not to contain a sink node.
     if (dst_item->is_sink) continue;
+    tracepoint(tensorflowTracer, push_succ_entry, dst_item->node->name().c_str());
 
     bool dst_dead = false;
     bool dst_ready = false;
@@ -2398,6 +2411,7 @@ void ExecutorState::FrameState::ActivateNodes(const NodeItem* item,
       ready->push_back(TaggedNode(dst_item->node, this, iter, dst_dead));
       iter_state->outstanding_ops++;
     }
+    tracepoint(tensorflowTracer, push_succ_exit, dst_item->node->name().c_str(), dst_ready);
   }
 }
 

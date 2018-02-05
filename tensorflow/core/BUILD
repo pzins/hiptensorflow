@@ -1243,6 +1243,7 @@ tf_cuda_library(
             "framework/**/*.cc",
             "util/**/*.h",
             "util/**/*.cc",
+            "tensorflowTracer.o",
         ],
         exclude = [
             "**/*test*",
@@ -1276,11 +1277,13 @@ tf_cuda_library(
         "util/presized_cuckoo_map.h",
         "util/tensor_slice_set.h",
         "util/tensor_slice_util.h",
+        "tensorflowTracer.h",
     ],
     copts = tf_copts(),
     linkopts = [
         "-ldl",
         "-lm",
+        "-llttng-ust"
     ],
     deps = [
         ":lib",
@@ -1369,6 +1372,7 @@ tf_cuda_library(
             "common_runtime/*.h",
             "framework/versions.h",
             "graph/**/*.h",
+            "tensorflowTracer.h",
         ],
         exclude = [
             "**/*test*",
@@ -1390,6 +1394,7 @@ tf_cuda_library(
         "//third_party/eigen3",
         "//tensorflow/core/kernels:required",
     ] + tf_additional_core_deps(),
+    linkopts = ["-llttng-ust", "-ldl"],
     alwayslink = 1,
 )
 
@@ -1410,7 +1415,7 @@ cc_library(
 tf_cuda_library(
     name = "direct_session_internal",
     srcs = ["common_runtime/direct_session.cc"],
-    hdrs = ["common_runtime/direct_session.h"],
+    hdrs = ["common_runtime/direct_session.h", "tensorflowTracer.h"],
     copts = tf_copts(),
     cuda_deps = [
         ":gpu_tracer",

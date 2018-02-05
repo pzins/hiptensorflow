@@ -15,6 +15,7 @@ limitations under the License.
 
 #ifndef TENSORFLOW_COMMON_RUNTIME_GPU_GPU_BFC_ALLOCATOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_GPU_GPU_BFC_ALLOCATOR_H_
+#include "tensorflow/core/tensorflowTracer.h"
 
 #include <memory>
 #include <string>
@@ -57,10 +58,12 @@ class GPUMemAllocator : public SubAllocator {
   ~GPUMemAllocator() override {}
 
   void* Alloc(size_t alignment, size_t num_bytes) override {
+    tracepoint(tensorflowTracer, gpu_bfc_alloc_entry, "");
     void* ptr = nullptr;
     if (num_bytes > 0) {
       ptr = stream_exec_->AllocateArray<char>(num_bytes).opaque();
     }
+    tracepoint(tensorflowTracer, gpu_bfc_alloc_exit, "");
     return ptr;
   }
 
