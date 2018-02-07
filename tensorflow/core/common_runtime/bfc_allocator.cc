@@ -169,17 +169,17 @@ bool BFCAllocator::Extend(size_t rounded_bytes) {
 }
 
 BFCAllocator::ChunkHandle BFCAllocator::AllocateChunk() {
-    tracepoint(tensorflowTracer, allocate_chunk_entry, "");
+    tracepoint(tensorflowTracer, allocate_chunk_entry, "BFCAllocator::AllocateChunk");
   if (free_chunks_list_ != kInvalidChunkHandle) {
     ChunkHandle h = free_chunks_list_;
     Chunk* c = ChunkFromHandle(h);
     free_chunks_list_ = c->next;
-    tracepoint(tensorflowTracer, allocate_chunk_entry, "");
+    tracepoint(tensorflowTracer, allocate_chunk_exit, "BFCAllocator::AllocateChunk");
     return h;
   } else {
     ChunkHandle h = chunks_.size();
     chunks_.resize(h + 1);
-    tracepoint(tensorflowTracer, allocate_chunk_exit, "");
+    tracepoint(tensorflowTracer, allocate_chunk_exit, "BFCAllocator::AllocateChunk");
     return h;
   }
 }

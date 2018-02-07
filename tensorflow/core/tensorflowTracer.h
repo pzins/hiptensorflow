@@ -246,20 +246,27 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_device_compute_entry,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, my_string_arg,
+        int, my_integer_arg
+
     ),
     TP_FIELDS(
         ctf_string(name, my_string_arg)
+        ctf_integer(int, is_ready, my_integer_arg)
+
     )
 )
 TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_device_compute_exit,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, my_string_arg,
+        int, my_integer_arg
     ),
     TP_FIELDS(
         ctf_string(name, my_string_arg)
+        ctf_integer(int, is_ready, my_integer_arg)
+
     )
 )
 
