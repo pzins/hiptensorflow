@@ -1607,11 +1607,10 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
       } else {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
-        std::string marker_name = "TF_kernel_sync_" + device->name();
         if (stats) nodestats::SetOpStart(stats);
-        tracepoint(tensorflowTracer, operation_start, marker_name.c_str());
+        tracepoint(tensorflowTracer, operation_start, device->name().c_str(), op_kernel->name().c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
-        tracepoint(tensorflowTracer, operation_end, marker_name.c_str());
+        tracepoint(tensorflowTracer, operation_end, device->name().c_str(), op_kernel->name().c_str());
         if (stats) nodestats::SetOpEnd(stats);
 
         s = ProcessOutputs(item, &ctx, &outputs, stats);

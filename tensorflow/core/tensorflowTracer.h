@@ -99,20 +99,24 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     operation_start,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, placement_arg,
+        const char*, name_arg
     ),
     TP_FIELDS(
-        ctf_string(name, my_string_arg)
+        ctf_string(placement, placement_arg)
+        ctf_string(name, name_arg)
     )
 )
 TRACEPOINT_EVENT(
     tensorflowTracer,
     operation_end,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, placement_arg,
+        const char*, name_arg
     ),
     TP_FIELDS(
-        ctf_string(name, my_string_arg)
+        ctf_string(placement, placement_arg)
+        ctf_string(name, name_arg)
     )
 )
 
