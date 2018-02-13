@@ -122,6 +122,31 @@ TRACEPOINT_EVENT(
 
 TRACEPOINT_EVENT(
     tensorflowTracer,
+    async_operation_start,
+    TP_ARGS(
+        const char*, placement_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(placement, placement_arg)
+        ctf_string(name, name_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    async_operation_end,
+    TP_ARGS(
+        const char*, placement_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(placement, placement_arg)
+        ctf_string(name, name_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
     allocate_chunk_entry,
     TP_ARGS(
         const char*, my_string_arg
