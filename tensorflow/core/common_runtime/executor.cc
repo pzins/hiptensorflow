@@ -1439,8 +1439,8 @@ struct ExecutorState::AsyncState {
 };
 
 void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
-  const char* st = tagged_node.node->name().c_str();
-  tracepoint(tensorflowTracer, process_entry, st);
+  const char* node_name = tagged_node.node->name().c_str();
+  tracepoint(tensorflowTracer, process_entry, node_name, scheduled_usec);
   const GraphView& gview = impl_->gview_;
   TaggedNodeSeq ready;
   TaggedNodeReadyQueue inline_ready;
@@ -1477,9 +1477,9 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
   inline_ready.push_back(tagged_node);
   while (!inline_ready.empty()) {
     tagged_node = inline_ready.front();
-    tracepoint(tensorflowTracer, inline_ready_entry, tagged_node.node->name().c_str());
     inline_ready.pop_front();
     const Node* node = tagged_node.node;
+    tracepoint(tensorflowTracer, inline_ready_entry, node->name().c_str());
     FrameState* input_frame = tagged_node.input_frame;
     int64 input_iter = tagged_node.input_iter;
     const int id = node->id();
@@ -1646,7 +1646,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
     }
     tracepoint(tensorflowTracer, inline_ready_exit, tagged_node.node->name().c_str());
   }  // while !inline_ready.empty()
-  tracepoint(tensorflowTracer, process_exit, st);
+  tracepoint(tensorflowTracer, process_exit, node_name, scheduled_usec);
   // This thread of computation is done if completed = true.
   if (completed) Finish();
 }

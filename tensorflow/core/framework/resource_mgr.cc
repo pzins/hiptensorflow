@@ -75,7 +75,7 @@ string ResourceMgr::DebugString() const {
 
 Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
                              const string& name, ResourceBase* resource) {
-  tracepoint(tensorflowTracer, do_create_entry, name.c_str());
+  tracepoint(tensorflowTracer, do_create_entry, name.c_str(), container.c_str());
   {
     mutex_lock l(mu_);
     Container** b = &containers_[container];
@@ -83,12 +83,12 @@ Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
       *b = new Container;
     }
     if ((*b)->insert({{type, name}, resource}).second) {
-      tracepoint(tensorflowTracer, do_create_exit, name.c_str());
+      tracepoint(tensorflowTracer, do_create_exit, name.c_str(), container.c_str(), 1);
       return Status::OK();
     }
   }
   resource->Unref();
-  tracepoint(tensorflowTracer, do_create_exit, name.c_str());
+  tracepoint(tensorflowTracer, do_create_exit, name.c_str(), container.c_str(), 0);
   return errors::AlreadyExists("Resource ", container, "/", name, "/",
                                type.name());
 }

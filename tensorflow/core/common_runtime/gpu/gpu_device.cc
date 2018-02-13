@@ -309,10 +309,9 @@ Status BaseGPUDevice::FillContextMap(const Graph* graph,
 }
 
 void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
-    AllocatorStats s;
+  AllocatorStats s;
   dynamic_cast<BFCAllocator*>(gpu_allocator_)->GetStats(&s);
-  std::string tmp = std::to_string(s.bytes_in_use) + "_" + std::to_string(s.num_allocs);
-  tracepoint(tensorflowTracer, gpu_device_compute_entry, tmp.c_str(), s.bytes_in_use);
+  tracepoint(tensorflowTracer, gpu_device_compute_entry, op_kernel->name().c_str(), s.bytes_in_use, s.num_allocs);
   // ScopedActivity is cheap when tracing is not active, but we
   // can avoid computing the Hash64.
   // TODO(pbar) This would no longer be needed if Ops have a unique id.
@@ -398,7 +397,7 @@ void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
       }
     }
   }
-  tracepoint(tensorflowTracer, gpu_device_compute_exit, tmp.c_str(), s.bytes_in_use);
+  tracepoint(tensorflowTracer, gpu_device_compute_exit, op_kernel->name().c_str(), s.bytes_in_use, s.num_allocs);
 }
 
 void BaseGPUDevice::ConsumeListOfAccessedTensors(
