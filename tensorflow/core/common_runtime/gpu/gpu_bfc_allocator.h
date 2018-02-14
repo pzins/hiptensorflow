@@ -68,10 +68,12 @@ class GPUMemAllocator : public SubAllocator {
   }
 
   void Free(void* ptr, size_t num_bytes) override {
+    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "GPUMemAllocator::Free", -1*num_bytes);
     if (ptr != nullptr) {
       gpu::DeviceMemoryBase gpu_ptr(ptr);
       stream_exec_->Deallocate(&gpu_ptr);
     }
+    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "GPUMemAllocator::Free", -1*num_bytes);
   }
 
  private:

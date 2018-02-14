@@ -92,6 +92,7 @@ ChunkPrefix* FindPrefix(void* user_ptr) {
 }  // namespace
 
 void* PoolAllocator::AllocateRaw(size_t alignment, size_t num_bytes) {
+    std::cout << "@@@@ PoolAllocator::AllocateRaw " << num_bytes << std::endl;
   if (!allocation_begun_) allocation_begun_ = true;
   if (num_bytes == 0) return nullptr;
 

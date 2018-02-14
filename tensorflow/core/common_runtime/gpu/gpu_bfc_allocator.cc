@@ -22,13 +22,13 @@ namespace gpu = ::perftools::gputools;
 namespace tensorflow {
 
 GPUBFCAllocator::GPUBFCAllocator(int device_id, size_t total_memory)
-    : GPUBFCAllocator(device_id, total_memory, GPUOptions()) {}
+    : GPUBFCAllocator(device_id, total_memory, GPUOptions()) {std::cout << "@@@@@ GPUBFCAllocator1 " << total_memory << std::endl;}
 
 GPUBFCAllocator::GPUBFCAllocator(int device_id, size_t total_memory,
                                  const GPUOptions& gpu_options)
     : BFCAllocator(
           new GPUMemAllocator(
               GPUMachineManager()->ExecutorForDevice(device_id).ValueOrDie()),
-          total_memory, gpu_options.allow_growth(), "gpu_bfc") {}
+          total_memory, gpu_options.allow_growth(), "gpu_bfc") {std::cout << "@@@@@ GPUBFCAllocator2 " << total_memory << std::endl;}
 
 }  // namespace tensorflow

@@ -18,8 +18,7 @@ TRACEPOINT_EVENT(
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(uint64_t, schedule_arg, name_arg)
-
+        ctf_integer(uint64_t, schedule, schedule_arg)
     )
 )
 
@@ -32,8 +31,7 @@ TRACEPOINT_EVENT(
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(uint64_t, schedule_arg, name_arg)
-
+        ctf_integer(uint64_t, schedule, schedule_arg)
     )
 )
 
@@ -224,16 +222,45 @@ TRACEPOINT_EVENT(
 )
 
 
+// int64 num_allocs;        // Number of allocations.
+// int64 bytes_in_use;      // Number of bytes in use.
+// int64 max_bytes_in_use;  // The maximum bytes in use.
+// int64 max_alloc_size;    // The max single allocation seen.
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    find_chunk_ptr,
+    TP_ARGS(
+        const char*, name_arg,
+        const char*, allocator_name_arg,
+        uint64_t, num_allocs_arg,
+        uint64_t, bytes_in_use_arg,
+        uint64_t, max_bytes_in_use_arg,
+        uint64_t, max_alloc_size_arg
+    ),
+    TP_FIELDS(
+        ctf_string(name, name_arg)
+        ctf_string(allocator_name, allocator_name_arg)
+        ctf_integer(uint64_t, num_allocs, num_allocs_arg)
+        ctf_integer(uint64_t, bytes_in_use, bytes_in_use_arg)
+        ctf_integer(uint64_t, max_bytes_in_use, max_bytes_in_use_arg)
+        ctf_integer(uint64_t, max_alloc_size, max_alloc_size_arg)
+    )
+)
+
+
 TRACEPOINT_EVENT(
     tensorflowTracer,
     deallocate_raw_internal_entry,
     TP_ARGS(
         const char*, name_arg,
-        const char*, ptr_arg
+        const char*, ptr_arg,
+        int, num_bytes_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
+        ctf_integer(int, num_bytes, num_bytes_arg)
     )
 )
 
@@ -243,11 +270,13 @@ TRACEPOINT_EVENT(
     TP_ARGS(
         const char*, name_arg,
         const char*, ptr_arg,
+        int, num_bytes_arg,
         int, success_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
+        ctf_integer(int, num_bytes, num_bytes_arg)
         ctf_integer(int, success, success_arg)
     )
 )
@@ -299,17 +328,21 @@ TRACEPOINT_EVENT(
     )
 )
 
+
+
+
+
 TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_bfc_alloc_entry,
     TP_ARGS(
         const char*, name_arg,
-        int, num_bytes_arg,
+        uint64_t, num_bytes_arg,
         int, alignment_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(int, num_bytes, num_bytes_arg)
+        ctf_integer(uint64_t, num_bytes, num_bytes_arg)
         ctf_integer(int, alignment, alignment_arg)
     )
 )
@@ -318,49 +351,43 @@ TRACEPOINT_EVENT(
     gpu_bfc_alloc_exit,
     TP_ARGS(
         const char*, name_arg,
-        int, num_bytes_arg,
+        uint64_t, num_bytes_arg,
         int, alignment_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(int, num_bytes, num_bytes_arg)
+        ctf_integer(uint64_t, num_bytes, num_bytes_arg)
         ctf_integer(int, alignment, alignment_arg)
     )
 )
 
-
 TRACEPOINT_EVENT(
     tensorflowTracer,
-    gpu_device_compute_entry,
+    gpu_bfc_free_entry,
     TP_ARGS(
         const char*, name_arg,
-        uint64_t, bytes_in_use_arg,
-        uint64_t, num_alloc_arg
-
+        uint64_t, num_bytes_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(uint64_t, bytes_in_use, bytes_in_use_arg)
-        ctf_integer(uint64_t, num_alloc, num_alloc_arg)
-
+        ctf_integer(int64_t, num_bytes, num_bytes_arg)
     )
 )
 TRACEPOINT_EVENT(
     tensorflowTracer,
-    gpu_device_compute_exit,
+    gpu_bfc_free_exit,
     TP_ARGS(
         const char*, name_arg,
-        uint64_t, bytes_in_use_arg,
-        uint64_t, num_alloc_arg
-
+        uint64_t, num_bytes_arg
     ),
     TP_FIELDS(
         ctf_string(name, name_arg)
-        ctf_integer(uint64_t, bytes_in_use, bytes_in_use_arg)
-        ctf_integer(uint64_t, num_alloc, num_alloc_arg)
-
+        ctf_integer(int64_t, num_bytes, num_bytes_arg)
     )
 )
+
+
+
 
 #endif
 
