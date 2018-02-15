@@ -369,7 +369,7 @@ Status DirectSession::Run(const RunOptions& run_options,
                           const std::vector<string>& target_nodes,
                           std::vector<Tensor>* outputs,
                           RunMetadata* run_metadata) {
-                                
+
   int count = direct_session_runs->GetCell()->value();
   tracepoint(tensorflowTracer, session_start, "DirectSession::Run", count);
   TF_RETURN_IF_ERROR(CheckNotClosed());

@@ -51,7 +51,7 @@ class TrackingVisitableAllocator : public TrackingAllocator,
                                    public VisitableAllocator {
  public:
   TrackingVisitableAllocator(VisitableAllocator* allocator, bool track_ids)
-      : TrackingAllocator(allocator, track_ids), allocator_(allocator) {std::cout << "@@@@@@@@@@@@@222 TrackingVisitableAllocator" << std::endl;}
+      : TrackingAllocator(allocator, track_ids), allocator_(allocator) {}
   ~TrackingVisitableAllocator() override {}
 
   string Name() override { return TrackingAllocator::Name(); }

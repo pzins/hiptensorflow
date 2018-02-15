@@ -333,9 +333,9 @@ void* BFCAllocator::FindChunkPtr(BinNum bin_num, size_t rounded_bytes,
             std::max<std::size_t>(stats_.max_alloc_size, chunk->size);
 
         tracepoint(tensorflowTracer, find_chunk_ptr, "FindChunkPtr", Name().c_str(),
-                stats_.num_allocs, 
-                stats_.bytes_in_use, 
-                stats_.max_bytes_in_use, 
+                stats_.num_allocs,
+                stats_.bytes_in_use,
+                stats_.max_bytes_in_use,
                 stats_.max_alloc_size);
         VLOG(4) << "Returning: " << chunk->ptr;
         if (VLOG_IS_ON(4)) {
@@ -390,10 +390,12 @@ void BFCAllocator::DeallocateRaw(void* ptr) {
 }
 
 void BFCAllocator::DeallocateRawInternal(void* ptr) {
- 
+  std::stringstream ss;
+  ss<<ptr;
+  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
   if (ptr == nullptr) {
     LOG(ERROR) << "tried to deallocate nullptr";
-    // tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), 0);
+    tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), 0);
     return;
   }
   mutex_lock l(lock_);
@@ -403,12 +405,8 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   CHECK(h != kInvalidChunkHandle);
 
   // Consider coalescing it.
-  Chunk* c = ChunkFromHandle(h);
-  std::stringstream ss;
-  ss<<ptr;
-  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
   FreeAndMaybeCoalesce(h);
-  
+
 
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
@@ -492,9 +490,9 @@ void BFCAllocator::FreeAndMaybeCoalesce(BFCAllocator::ChunkHandle h) {
   // Updates the stats.
   stats_.bytes_in_use -= c->size;
   tracepoint(tensorflowTracer, find_chunk_ptr, "FindChunkPtr", Name().c_str(),
-          stats_.num_allocs, 
-          stats_.bytes_in_use, 
-          stats_.max_bytes_in_use, 
+          stats_.num_allocs,
+          stats_.bytes_in_use,
+          stats_.max_bytes_in_use,
           stats_.max_alloc_size);
 
   // This chunk is no longer in-use, consider coalescing the chunk
