@@ -344,6 +344,16 @@ class BFCAllocator : public VisitableAllocator {
 
   Chunk* ChunkFromHandle(ChunkHandle h) EXCLUSIVE_LOCKS_REQUIRED(lock_);
 
+
+  // Information about a Bin that is useful for debugging.
+  struct BinDebugInfo {
+    size_t total_bytes_in_use = 0;
+    size_t total_bytes_in_bin = 0;
+    size_t total_requested_bytes_in_use = 0;
+    size_t total_chunks_in_use = 0;
+    size_t total_chunks_in_bin = 0;
+  };
+  
   AllocatorRetry retry_helper_;
 
   // Structures immutable after construction

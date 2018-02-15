@@ -293,6 +293,9 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
 
 void* BFCAllocator::FindChunkPtr(BinNum bin_num, size_t rounded_bytes,
                                  size_t num_bytes) {
+                                     
+  // std::cout << "@@@@  " << RenderOccupancy() << std::endl;
+  DumpMemoryLog(0);
   // First identify the first bin that could satisfy rounded_bytes.
   for (; bin_num < kNumBins; bin_num++) {
     // Start searching from the first bin for the smallest chunk that fits
@@ -644,6 +647,140 @@ string BFCAllocator::RenderOccupancy() {
 }
 
 void BFCAllocator::DumpMemoryLog(size_t num_bytes) {
+    // Next show the chunks that are in use, and also summarize their
+    // number by size.
+    // std::map<size_t, int> in_use_by_size;
+    {
+    uint64 total_bytes_in_use = 0, total_requested_bytes_in_use = 0;
+    uint64 total_bytes = 0, total_requested_bytes = 0;
+    uint64 chunks = 0, in_use_chunks = 0, free_chunks = 0;
+
+    for (const auto& region : region_manager_.regions()) {
+      ChunkHandle h = region_manager_.get_handle(region.ptr());
+      while (h != kInvalidChunkHandle) {
+        const Chunk* c = ChunkFromHandle(h);
+        chunks++;
+        if (c->in_use()) {
+            in_use_chunks++;
+            total_bytes_in_use += c->size;
+            total_bytes_in_use += c->requested_size;
+      } else {
+          free_chunks++;
+          total_bytes += c->size;
+          total_requested_bytes += c->size;
+      }
+        LOG(INFO) << (c->in_use() ? "Chunk" : "Free ") << " at " << c->ptr
+                  << " of size " << c->size;
+        h = c->next;
+      }
+    }
+    std::cout << "___________________" << std::endl;
+    std::cout << "|| " << total_bytes << " " << total_requested_bytes << std::endl;
+    std::cout << "|| " << total_bytes_in_use << " " << total_requested_bytes_in_use << std::endl;
+    std::cout << "|| " << chunks << " " << in_use_chunks << " " << free_chunks << std::endl;
+    if(Name() == "gpu_bfc") {
+        tracepoint(tensorflowTracer, gpu_bfc_allocator_stats, Name().c_str(), total_bytes_in_use,
+            total_requested_bytes_in_use, total_bytes, total_requested_bytes, chunks,
+            in_use_chunks, free_chunks);
+    } else {
+        tracepoint(tensorflowTracer, cpu_bfc_allocator_stats, Name().c_str(), total_bytes_in_use,
+            total_requested_bytes_in_use, total_bytes, total_requested_bytes, chunks,
+            in_use_chunks, free_chunks);
+    }
+}
+    std::cout << "#########################################" << std::endl;
+    std::array<BinDebugInfo, kNumBins> bin_infos;
+    for (const auto& region : region_manager_.regions()) {
+      ChunkHandle h = region_manager_.get_handle(region.ptr());
+      int counter = 0;
+      while (h != kInvalidChunkHandle) {
+        const Chunk* c = ChunkFromHandle(h);
+        BinNum bin_num = BinNumForSize(c->size);
+        BinDebugInfo& bin_info = bin_infos[bin_num];
+        bin_info.total_bytes_in_bin += c->size;
+        bin_info.total_chunks_in_bin++;
+        if (c->in_use()) {
+          bin_info.total_bytes_in_use += c->size;
+          bin_info.total_requested_bytes_in_use += c->requested_size;
+          bin_info.total_chunks_in_use++;
+        } else {
+          Bin* bin = BinFromIndex(bin_num);
+          CHECK_EQ(bin->free_chunks.count(h), 1);
+          CHECK_EQ(c->bin_num, bin_num);
+        }
+        h = c->next;
+        counter++;
+      }
+      std::cout << "£££ counter " << Name() << "  "  << counter << std::endl;
+    }
+    std::cout << "£££   chunks_  " << Name() << "  "  << chunks_.size() << std::endl;
+    // return bin_infos;
+    for (BinNum bin_num = 0; bin_num < kNumBins; bin_num++) {
+       Bin* b = BinFromIndex(bin_num);
+       const BinDebugInfo& bin_info = bin_infos[bin_num];
+       CHECK_EQ(b->free_chunks.size(),
+                bin_info.total_chunks_in_bin - bin_info.total_chunks_in_use);
+
+       LOG(INFO) << "Bin (" << b->bin_size
+                 << "): \tTotal Chunks: " << bin_info.total_chunks_in_bin
+                 << ", Chunks in use: " << bin_info.total_chunks_in_use << ". "
+                 << strings::HumanReadableNumBytes(bin_info.total_bytes_in_bin)
+                 << " allocated for chunks. "
+                 << strings::HumanReadableNumBytes(bin_info.total_bytes_in_use)
+                 << " in use in bin. "
+                 << strings::HumanReadableNumBytes(
+                        bin_info.total_requested_bytes_in_use)
+                 << " client-requested in use in bin.";
+     }
+
+     // Find the bin that we would have liked to allocate in, so we
+     // can get some further analysis about fragmentation.
+     Bin* b = BinForSize(num_bytes);
+
+     LOG(INFO) << "Bin for " << strings::HumanReadableNumBytes(num_bytes)
+               << " was " << strings::HumanReadableNumBytes(b->bin_size)
+               << ", Chunk State: ";
+
+     for (ChunkHandle h : b->free_chunks) {
+       Chunk* c = ChunkFromHandle(h);
+       LOG(INFO) << c->DebugString(this, true);
+     }
+
+     // Next show the chunks that are in use, and also summarize their
+     // number by size.
+     std::map<size_t, int> in_use_by_size;
+     for (const auto& region : region_manager_.regions()) {
+       ChunkHandle h = region_manager_.get_handle(region.ptr());
+       while (h != kInvalidChunkHandle) {
+         const Chunk* c = ChunkFromHandle(h);
+         if (c->in_use()) {
+           in_use_by_size[c->size]++;
+         }
+         LOG(INFO) << (c->in_use() ? "Chunk" : "Free ") << " at " << c->ptr
+                   << " of size " << c->size;
+         h = c->next;
+       }
+     }
+
+     LOG(INFO) << "     Summary of in-use Chunks by size: ";
+     size_t total_bytes = 0;
+     for (auto& it : in_use_by_size) {
+       LOG(INFO) << it.second << " Chunks of size " << it.first << " totalling "
+                 << strings::HumanReadableNumBytes(it.first * it.second);
+       total_bytes += (it.first * it.second);
+     }
+     LOG(INFO) << "Sum Total of in-use chunks: "
+               << strings::HumanReadableNumBytes(total_bytes);
+     LOG(INFO) << "Stats: \n" << stats_.DebugString();
+        
+        
+     std::cout << "---------------------------------------" << std::endl;
+    
+    
+    
+{
+    int counter = 0;
+
   // For each bin: tally up the total number of chunks and bytes.
   // Note that bins hold only free chunks.
   for (BinNum bin_num = 0; bin_num < kNumBins; bin_num++) {
@@ -656,6 +793,7 @@ void BFCAllocator::DumpMemoryLog(size_t num_bytes) {
     size_t total_chunks_in_use = 0;
     size_t total_chunks_in_bin = 0;
     for (ChunkHandle h : b->free_chunks) {
+      counter++;
       Chunk* c = ChunkFromHandle(h);
       total_bytes_in_bin += c->size;
       total_requested_bytes_in_bin += c->requested_size;
@@ -679,10 +817,13 @@ void BFCAllocator::DumpMemoryLog(size_t num_bytes) {
               << strings::HumanReadableNumBytes(total_requested_bytes_in_use)
               << " client-requested in use in bin.";
   }
+  std::cout << "£££ counter 2 : " << Name() << "  "  << counter << std::endl;
 
   // Find the bin that we would have liked to allocate in, so we
   // can get some further analysis about fragmentation.
+  
   Bin* b = BinForSize(num_bytes);
+  b = BinForSize(num_bytes);
 
   LOG(INFO) << "Bin for " << strings::HumanReadableNumBytes(num_bytes)
             << " was " << strings::HumanReadableNumBytes(b->bin_size)
@@ -727,6 +868,9 @@ void BFCAllocator::DumpMemoryLog(size_t num_bytes) {
   LOG(INFO) << "Sum Total of in-use chunks: "
             << strings::HumanReadableNumBytes(total_bytes);
   LOG(INFO) << "Stats: \n" << stats_.DebugString();
+}
+std::cout << "00000000#########################################" << std::endl << std::endl;
+
 }
 
 void BFCAllocator::GetStats(AllocatorStats* stats) {
