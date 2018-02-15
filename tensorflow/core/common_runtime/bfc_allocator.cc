@@ -390,12 +390,8 @@ void BFCAllocator::DeallocateRaw(void* ptr) {
 }
 
 void BFCAllocator::DeallocateRawInternal(void* ptr) {
-  std::stringstream ss;
-  ss<<ptr;
-  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
   if (ptr == nullptr) {
     LOG(ERROR) << "tried to deallocate nullptr";
-    tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), 0);
     return;
   }
   mutex_lock l(lock_);
@@ -404,6 +400,10 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   BFCAllocator::ChunkHandle h = region_manager_.get_handle(ptr);
   CHECK(h != kInvalidChunkHandle);
 
+  Chunk* c = ChunkFromHandle(h);
+  std::stringstream ss;
+  ss<<ptr;
+  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
   // Consider coalescing it.
   FreeAndMaybeCoalesce(h);
 
@@ -411,7 +411,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
   }
-  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size, 1);
+  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
 }
 
 // Merges h1 and h2 when Chunk(h1)->next is h2 and Chunk(h2)->prev is c1.
