@@ -222,11 +222,6 @@ TRACEPOINT_EVENT(
 )
 
 
-// int64 num_allocs;        // Number of allocations.
-// int64 bytes_in_use;      // Number of bytes in use.
-// int64 max_bytes_in_use;  // The maximum bytes in use.
-// int64 max_alloc_size;    // The max single allocation seen.
-
 TRACEPOINT_EVENT(
     tensorflowTracer,
     find_chunk_ptr,
@@ -393,8 +388,10 @@ TRACEPOINT_EVENT(
         const char*, allocator_name_arg,
         uint64_t, total_bytes_in_use_arg,
         uint64_t, total_requested_bytes_in_use_arg,
+        uint64_t, total_wasted_bytes_in_use_arg,
         uint64_t, total_bytes_arg,
         uint64_t, total_requested_bytes_arg,
+        uint64_t, total_wasted_bytes_arg,
         uint64_t, chunks_arg,
         uint64_t, in_use_chunks_arg,
         uint64_t, free_chunks_arg
@@ -403,13 +400,16 @@ TRACEPOINT_EVENT(
         ctf_string(allocator_name, allocator_name_arg)
         ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
         ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
+        ctf_integer(int64_t, total_wasted_bytes_in_use, total_wasted_bytes_in_use_arg)
         ctf_integer(int64_t, total_bytes, total_bytes_arg)
         ctf_integer(int64_t, total_requested_bytes, total_requested_bytes_arg)
+        ctf_integer(int64_t, total_wasted_bytes, total_wasted_bytes_arg)
         ctf_integer(int64_t, chunks, chunks_arg)
         ctf_integer(int64_t, in_use_chunks, in_use_chunks_arg)
         ctf_integer(int64_t, free_chunks, free_chunks_arg)
     )
 )
+
 TRACEPOINT_EVENT(
     tensorflowTracer,
     cpu_bfc_allocator_stats,
@@ -417,8 +417,10 @@ TRACEPOINT_EVENT(
         const char*, allocator_name_arg,
         uint64_t, total_bytes_in_use_arg,
         uint64_t, total_requested_bytes_in_use_arg,
+        uint64_t, total_wasted_bytes_in_use_arg,
         uint64_t, total_bytes_arg,
         uint64_t, total_requested_bytes_arg,
+        uint64_t, total_wasted_bytes_arg,
         uint64_t, chunks_arg,
         uint64_t, in_use_chunks_arg,
         uint64_t, free_chunks_arg
@@ -427,14 +429,61 @@ TRACEPOINT_EVENT(
         ctf_string(allocator_name, allocator_name_arg)
         ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
         ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
+        ctf_integer(int64_t, total_wasted_bytes_in_use, total_wasted_bytes_in_use_arg)
         ctf_integer(int64_t, total_bytes, total_bytes_arg)
         ctf_integer(int64_t, total_requested_bytes, total_requested_bytes_arg)
+        ctf_integer(int64_t, total_wasted_bytes, total_wasted_bytes_arg)
         ctf_integer(int64_t, chunks, chunks_arg)
         ctf_integer(int64_t, in_use_chunks, in_use_chunks_arg)
         ctf_integer(int64_t, free_chunks, free_chunks_arg)
     )
 )
 
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    gpu_bin_stats,
+    TP_ARGS(
+        const char*, allocator_name_arg,
+        uint64_t, bin_numero_arg,
+        uint64_t, total_chunks_in_bin_arg,
+        uint64_t, total_chunks_in_use_arg,
+        uint64_t, total_bytes_in_bin_arg,
+        uint64_t, total_bytes_in_use_arg,
+        uint64_t, total_requested_bytes_in_use_arg
+    ),
+    TP_FIELDS(
+        ctf_string(allocator_name, allocator_name_arg)
+        ctf_integer(int64_t, bin_numero, bin_numero_arg)
+        ctf_integer(int64_t, total_chunks_in_bin, total_chunks_in_bin_arg)
+        ctf_integer(int64_t, total_chunks_in_use, total_chunks_in_use_arg)
+        ctf_integer(int64_t, total_bytes_in_bin, total_bytes_in_bin_arg)
+        ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
+        ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    cpu_bin_stats,
+    TP_ARGS(
+        const char*, allocator_name_arg,
+        uint64_t, bin_numero_arg,
+        uint64_t, total_chunks_in_bin_arg,
+        uint64_t, total_chunks_in_use_arg,
+        uint64_t, total_bytes_in_bin_arg,
+        uint64_t, total_bytes_in_use_arg,
+        uint64_t, total_requested_bytes_in_use_arg
+    ),
+    TP_FIELDS(
+        ctf_string(allocator_name, allocator_name_arg)
+        ctf_integer(int64_t, bin_numero, bin_numero_arg)
+        ctf_integer(int64_t, total_chunks_in_bin, total_chunks_in_bin_arg)
+        ctf_integer(int64_t, total_chunks_in_use, total_chunks_in_use_arg)
+        ctf_integer(int64_t, total_bytes_in_bin, total_bytes_in_bin_arg)
+        ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
+        ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
+    )
+)
 
 
 #endif
