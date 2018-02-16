@@ -334,7 +334,7 @@ void* BFCAllocator::FindChunkPtr(BinNum bin_num, size_t rounded_bytes,
         stats_.max_alloc_size =
             std::max<std::size_t>(stats_.max_alloc_size, chunk->size);
 
-        tracepoint(tensorflowTracer, find_chunk_ptr, "FindChunkPtr", Name().c_str(),
+        tracepoint(tensorflowTracer, bfc_allocator_stats, Name().c_str(),
                 stats_.num_allocs,
                 stats_.bytes_in_use,
                 stats_.max_bytes_in_use,
@@ -491,7 +491,7 @@ void BFCAllocator::FreeAndMaybeCoalesce(BFCAllocator::ChunkHandle h) {
 
   // Updates the stats.
   stats_.bytes_in_use -= c->size;
-  tracepoint(tensorflowTracer, find_chunk_ptr, "FindChunkPtr", Name().c_str(),
+  tracepoint(tensorflowTracer, bfc_allocator_stats, Name().c_str(),
           stats_.num_allocs,
           stats_.bytes_in_use,
           stats_.max_bytes_in_use,
@@ -687,12 +687,12 @@ void BFCAllocator::Profile() {
       }
     }
     if(Name().find("gpu") != std::string::npos) {
-        tracepoint(tensorflowTracer, gpu_bfc_allocator_stats, Name().c_str(), 
+        tracepoint(tensorflowTracer, gpu_bfc_chunks_stats, Name().c_str(), 
         total_bytes_in_use, total_requested_bytes_in_use, total_bytes_in_use - total_requested_bytes_in_use,
         total_bytes, total_requested_bytes, total_bytes - total_requested_bytes,
         chunks, in_use_chunks, free_chunks);
     } else {
-        tracepoint(tensorflowTracer, cpu_bfc_allocator_stats, Name().c_str(), 
+        tracepoint(tensorflowTracer, cpu_bfc_chunks_stats, Name().c_str(), 
         total_bytes_in_use, total_requested_bytes_in_use, total_bytes_in_use - total_requested_bytes_in_use,
         total_bytes, total_requested_bytes, total_bytes - total_requested_bytes   ,
         chunks, in_use_chunks, free_chunks);
@@ -706,13 +706,13 @@ void BFCAllocator::Profile() {
                 bin_info.total_chunks_in_bin - bin_info.total_chunks_in_use);
        
        if(Name().find("gpu") != std::string::npos) {
-           tracepoint(tensorflowTracer, gpu_bin_stats, Name().c_str(), bin_num,
+           tracepoint(tensorflowTracer, gpu_bfc_bins_stats, Name().c_str(), bin_num,
            bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
            bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
            bin_info.total_requested_bytes_in_use);
        }
        else {
-           tracepoint(tensorflowTracer, cpu_bin_stats, Name().c_str(), bin_num,
+           tracepoint(tensorflowTracer, cpu_bfc_bins_stats, Name().c_str(), bin_num,
            bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
            bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
            bin_info.total_requested_bytes_in_use);    
