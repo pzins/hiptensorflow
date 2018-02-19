@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include "grpcTracer.h"
 #include "tensorflow/core/distributed_runtime/rpc/grpc_worker_service.h"
 
 #include <deque>
@@ -138,6 +138,8 @@ class GrpcWorkerService : public AsyncServiceInterface {
     bool ok;
 
     while (cq_->Next(&tag, &ok)) {
+        tracepoint(grpcTracer, receive_request, "request");
+
       UntypedCall<GrpcWorkerService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcWorkerService>::Tag*>(tag);
       if (callback_tag) {

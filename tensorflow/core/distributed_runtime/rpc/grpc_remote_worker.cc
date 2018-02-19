@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include "grpcTracer.h"
 #include "tensorflow/core/distributed_runtime/rpc/grpc_remote_worker.h"
 
 #include "grpc++/grpc++.h"
@@ -230,6 +230,8 @@ class GrpcRemoteWorker : public WorkerInterface {
   void IssueRequest(const RequestMessage* request, ResponseMessage* response,
                     const ::grpc::RpcMethod& method, StatusCallback done,
                     CallOptions* call_opts = nullptr) {
+                        tracepoint(grpcTracer, send_request, "request");
+
     auto state = new RPCState<RequestMessage, ResponseMessage>(
         channel_.get(), cq_, method, *request, std::move(done), call_opts);
     state->StartRPC(response);
