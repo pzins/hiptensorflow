@@ -55,18 +55,21 @@ class GrpcRemoteWorker : public WorkerInterface {
   void GetStatusAsync(const GetStatusRequest* request,
                       GetStatusResponse* response,
                       StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "GetStatusAsync");
     IssueRequest(request, response, getstatus_, std::move(done));
   }
 
   void RegisterGraphAsync(const RegisterGraphRequest* request,
                           RegisterGraphResponse* response,
                           StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "RegisterGraphAsync");
     IssueRequest(request, response, registergraph_, std::move(done));
   }
 
   void DeregisterGraphAsync(const DeregisterGraphRequest* request,
                             DeregisterGraphResponse* response,
                             StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "DeregisterGraphAsync");
     IssueRequest(request, response, deregistergraph_, std::move(done));
   }
 
@@ -77,6 +80,7 @@ class GrpcRemoteWorker : public WorkerInterface {
   void RunGraphAsync(CallOptions* call_opts, RunGraphRequestWrapper* request,
                      MutableRunGraphResponseWrapper* response,
                      StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "RunGraphAsync");
     IssueRequest(&request->ToProto(), get_proto_from_wrapper(response),
                  rungraph_, std::move(done), call_opts);
   }
@@ -84,12 +88,14 @@ class GrpcRemoteWorker : public WorkerInterface {
   void CleanupGraphAsync(const CleanupGraphRequest* request,
                          CleanupGraphResponse* response,
                          StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "CleanupGraphAsync");
     IssueRequest(request, response, cleanupgraph_, std::move(done));
   }
 
   void CleanupAllAsync(const CleanupAllRequest* request,
                        CleanupAllResponse* response,
                        StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "CleanupAllAsync");
     IssueRequest(request, response, cleanupall_, std::move(done));
   }
 
@@ -161,18 +167,20 @@ class GrpcRemoteWorker : public WorkerInterface {
       };
       cb_to_use = &wrapper_done;
     }
-
+    tracepoint(grpcTracer, send_request, "RecvTensorAsync");
     IssueRequest(req_copy ? req_copy : request, response, recvtensor_,
                  std::move(*cb_to_use), call_opts);
   }
 
   void LoggingAsync(const LoggingRequest* request, LoggingResponse* response,
                     StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "LoggingAsync");
     IssueRequest(request, response, logging_, done);
   }
 
   void TracingAsync(const TracingRequest* request, TracingResponse* response,
                     StatusCallback done) override {
+    tracepoint(grpcTracer, send_request, "TracingAsync");
     IssueRequest(request, response, tracing_, done);
   }
 
@@ -230,7 +238,7 @@ class GrpcRemoteWorker : public WorkerInterface {
   void IssueRequest(const RequestMessage* request, ResponseMessage* response,
                     const ::grpc::RpcMethod& method, StatusCallback done,
                     CallOptions* call_opts = nullptr) {
-                        tracepoint(grpcTracer, send_request, "request");
+                        // tracepoint(grpcTracer, send_request, "request");
 
     auto state = new RPCState<RequestMessage, ResponseMessage>(
         channel_.get(), cq_, method, *request, std::move(done), call_opts);

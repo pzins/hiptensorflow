@@ -13,23 +13,46 @@ TRACEPOINT_EVENT(
     grpcTracer,
     send_request,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, name_arg
     ),
     TP_FIELDS(
-        ctf_string(name, my_string_arg)
+        ctf_string(name, name_arg)
     )
 )
 TRACEPOINT_EVENT(
     grpcTracer,
     receive_request,
     TP_ARGS(
-        const char*, my_string_arg
+        const char*, name_arg
     ),
     TP_FIELDS(
-        ctf_string(name, my_string_arg)
+        ctf_string(name, name_arg)
     )
 )
 
+
+/*
+GetStatusAsync
+RegisterGraphAsync
+DeregisterGraphAsync
+RunGraphAsync
+CleanupGraphAsync
+CleanupAllAsync
+RecvTensorAsync
+LoggingAsync
+TracingAsync
+
+
+GetStatusHandler
+CleanupAllHandler
+RegisterGraphHandler
+DeregisterGraphHandler
+RunGraphHandler
+RecvTensorHandlerRaw
+CleanupGraphHandler
+LoggingHandler
+TracingHandler
+*/
 
 
 

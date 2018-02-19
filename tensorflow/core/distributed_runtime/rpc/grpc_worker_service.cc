@@ -138,8 +138,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
     bool ok;
 
     while (cq_->Next(&tag, &ok)) {
-        tracepoint(grpcTracer, receive_request, "request");
-
+        // tracepoint(grpcTracer, receive_request, "request");
       UntypedCall<GrpcWorkerService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcWorkerService>::Tag*>(tag);
       if (callback_tag) {
@@ -178,6 +177,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
                           RequestMessage, ResponseMessage>;
 
   void GetStatusHandler(WorkerCall<GetStatusRequest, GetStatusResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "GetStatusHandler");
     Schedule([this, call]() {
       Status s = worker_->GetStatus(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -187,6 +187,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupAllHandler(
       WorkerCall<CleanupAllRequest, CleanupAllResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "CleanupAllHandler");
     Schedule([this, call]() {
       Status s = worker_->CleanupAll(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -196,6 +197,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RegisterGraphHandler(
       WorkerCall<RegisterGraphRequest, RegisterGraphResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "RegisterGraphHandler");
     Schedule([this, call]() {
       Status s = worker_->RegisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -205,6 +207,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void DeregisterGraphHandler(
       WorkerCall<DeregisterGraphRequest, DeregisterGraphResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "DeregisterGraphHandler");
     Schedule([this, call]() {
       Status s = worker_->DeregisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -213,6 +216,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void RunGraphHandler(WorkerCall<RunGraphRequest, RunGraphResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "RunGraphHandler");
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       ProtoRunGraphRequest* wrapped_request =
@@ -235,6 +239,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RecvTensorHandlerRaw(
       WorkerCall<RecvTensorRequest, ::grpc::ByteBuffer>* call) {
+    tracepoint(grpcTracer, receive_request, "RecvTensorHandlerRaw");
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       call->SetCancelCallback([call_opts]() { call_opts->StartCancel(); });
@@ -250,6 +255,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupGraphHandler(
       WorkerCall<CleanupGraphRequest, CleanupGraphResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "CleanupGraphHandler");
     Schedule([this, call]() {
       Status s = worker_->CleanupGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -258,6 +264,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void LoggingHandler(WorkerCall<LoggingRequest, LoggingResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "LoggingHandler");
     Schedule([this, call]() {
       Status s = worker_->Logging(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -266,6 +273,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void TracingHandler(WorkerCall<TracingRequest, TracingResponse>* call) {
+    tracepoint(grpcTracer, receive_request, "TracingHandler");
     Schedule([this, call]() {
       Status s = worker_->Tracing(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
