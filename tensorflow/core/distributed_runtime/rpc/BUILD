@@ -203,8 +203,8 @@ cc_library(
 
 cc_library(
     name = "grpc_master_service",
-    srcs = ["grpc_master_service.cc"],
-    hdrs = ["grpc_master_service.h"],
+    srcs = ["grpc_master_service.cc", "grpcTracer.o"],
+    hdrs = ["grpc_master_service.h", "grpcTracer.h"],
     deps = [
         ":async_service_interface",
         ":grpc_call",
@@ -216,6 +216,8 @@ cc_library(
         "@grpc//:grpc++_unsecure",
     ],
     alwayslink = 1,
+    linkopts = ["-ldl", "-llttng-ust"],
+
 )
 
 cc_library(
