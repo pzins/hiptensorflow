@@ -138,10 +138,11 @@ class GrpcWorkerService : public AsyncServiceInterface {
     bool ok;
 
     while (cq_->Next(&tag, &ok)) {
-        // tracepoint(grpcTracer, receive_request, "request");
+        tracepoint(grpcTracer, receive_request, "worker_request");
       UntypedCall<GrpcWorkerService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcWorkerService>::Tag*>(tag);
       if (callback_tag) {
+          tracepoint(grpcTracer, receive_request, "just_test");
         callback_tag->OnCompleted(this, ok);
       } else {
         // NOTE(mrry): A null `callback_tag` indicates that this is

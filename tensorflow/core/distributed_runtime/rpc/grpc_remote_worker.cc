@@ -75,6 +75,7 @@ class GrpcRemoteWorker : public WorkerInterface {
 
   void RunGraphAsync(CallOptions* call_opts, const RunGraphRequest* request,
                      RunGraphResponse* response, StatusCallback done) override {
+     tracepoint(grpcTracer, send_request, "RunGraphAsync");
     IssueRequest(request, response, rungraph_, std::move(done), call_opts);
   }
   void RunGraphAsync(CallOptions* call_opts, RunGraphRequestWrapper* request,
