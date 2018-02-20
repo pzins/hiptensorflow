@@ -28,7 +28,6 @@ limitations under the License.
 // Each session analyses the graph, places nodes across available
 // devices, and ultimately drives the graph computation by initiating
 // RunGraph on workers.
-#include "grpcTracer.h"
 #include "tensorflow/core/distributed_runtime/rpc/grpc_master_service.h"
 
 #include "grpc++/alarm.h"
@@ -115,7 +114,6 @@ class GrpcMasterService : public AsyncServiceInterface {
     void* tag;
     bool ok;
     while (cq_->Next(&tag, &ok)) {
-      tracepoint(grpcTracer, receive_request, "master_request");
       UntypedCall<GrpcMasterService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcMasterService>::Tag*>(tag);
       if (callback_tag) {

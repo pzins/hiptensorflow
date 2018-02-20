@@ -204,7 +204,7 @@ cc_library(
 cc_library(
     name = "grpc_master_service",
     srcs = ["grpc_master_service.cc"],
-    hdrs = ["grpc_master_service.h", "grpcTracer.h"],
+    hdrs = ["grpc_master_service.h"],
     deps = [
         ":async_service_interface",
         ":grpc_call",
