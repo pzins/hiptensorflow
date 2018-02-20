@@ -168,7 +168,11 @@ class GrpcRemoteWorker : public WorkerInterface {
       };
       cb_to_use = &wrapper_done;
     }
-    tracepoint(grpcTracer, send_request, "RecvTensorAsync");
+    const string& key = request->rendezvous_key();
+    std::vector<string> key_parts = str_util::Split(key, ';');
+    tracepoint(grpcTracer, send_RecvTensor_request, "RecvTensorAsync", 
+                key_parts[3].c_str(), key_parts[0].c_str(), key_parts[2].c_str(), request->DebugString().c_str(),
+                response->metadata().DebugString().c_str());
     IssueRequest(req_copy ? req_copy : request, response, recvtensor_,
                  std::move(*cb_to_use), call_opts);
   }
