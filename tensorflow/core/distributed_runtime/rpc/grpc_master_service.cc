@@ -115,7 +115,7 @@ class GrpcMasterService : public AsyncServiceInterface {
     void* tag;
     bool ok;
     while (cq_->Next(&tag, &ok)) {
-        tracepoint(grpcTracer, receive_request, "master_request");
+      tracepoint(grpcTracer, receive_request, "master_request");
       UntypedCall<GrpcMasterService>::Tag* callback_tag =
           static_cast<UntypedCall<GrpcMasterService>::Tag*>(tag);
       if (callback_tag) {
