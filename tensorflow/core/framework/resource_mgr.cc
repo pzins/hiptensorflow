@@ -75,7 +75,7 @@ string ResourceMgr::DebugString() const {
 
 Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
                              const string& name, ResourceBase* resource) {
-  tracepoint(tensorflowTracer, do_create_entry, name.c_str(), container.c_str());
+  tracepoint(tensorflowTracer, do_create_entry, "memory", name.c_str(), container.c_str());
   {
     mutex_lock l(mu_);
     Container** b = &containers_[container];
@@ -83,12 +83,12 @@ Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
       *b = new Container;
     }
     if ((*b)->insert({{type, name}, resource}).second) {
-      tracepoint(tensorflowTracer, do_create_exit, name.c_str(), container.c_str(), 1);
+      tracepoint(tensorflowTracer, do_create_exit, "memory", name.c_str(), container.c_str(), 1);
       return Status::OK();
     }
   }
   resource->Unref();
-  tracepoint(tensorflowTracer, do_create_exit, name.c_str(), container.c_str(), 0);
+  tracepoint(tensorflowTracer, do_create_exit, "memory", name.c_str(), container.c_str(), 0);
   return errors::AlreadyExists("Resource ", container, "/", name, "/",
                                type.name());
 }
@@ -134,14 +134,14 @@ Status ResourceMgr::DoDelete(const string& container, TypeIndex type,
 }
 
 Status ResourceMgr::Cleanup(const string& container) {
-  tracepoint(tensorflowTracer, cleanup_entry, container.c_str());
+  tracepoint(tensorflowTracer, cleanup_entry, "memory", container.c_str());
   Container* b = nullptr;
   {
     mutex_lock l(mu_);
     auto iter = containers_.find(container);
     if (iter == containers_.end()) {
       // Nothing to cleanup, it's OK.
-      tracepoint(tensorflowTracer, cleanup_exit, container.c_str());
+      tracepoint(tensorflowTracer, cleanup_exit, "memory", container.c_str());
       return Status::OK();
     }
     b = iter->second;
@@ -152,7 +152,7 @@ Status ResourceMgr::Cleanup(const string& container) {
     p.second->Unref();
   }
   delete b;
-  tracepoint(tensorflowTracer, cleanup_exit, container.c_str());
+  tracepoint(tensorflowTracer, cleanup_exit, "memory", container.c_str());
   return Status::OK();
 }
 

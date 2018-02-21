@@ -58,22 +58,22 @@ class GPUMemAllocator : public SubAllocator {
   ~GPUMemAllocator() override {}
 
   void* Alloc(size_t alignment, size_t num_bytes) override {
-    tracepoint(tensorflowTracer, gpu_bfc_alloc_entry, "GPUMemAllocator::Alloc", num_bytes, alignment);
+    tracepoint(tensorflowTracer, gpu_bfc_alloc_entry, "memory", "GPUMemAllocator::Alloc", num_bytes, alignment);
     void* ptr = nullptr;
     if (num_bytes > 0) {
       ptr = stream_exec_->AllocateArray<char>(num_bytes).opaque();
     }
-    tracepoint(tensorflowTracer, gpu_bfc_alloc_exit, "GPUMemAllocator::Alloc", num_bytes, alignment);
+    tracepoint(tensorflowTracer, gpu_bfc_alloc_exit, "memory", "GPUMemAllocator::Alloc", num_bytes, alignment);
     return ptr;
   }
 
   void Free(void* ptr, size_t num_bytes) override {
-    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "GPUMemAllocator::Free", -1*num_bytes);
+    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "memory", "GPUMemAllocator::Free", -1*num_bytes);
     if (ptr != nullptr) {
       gpu::DeviceMemoryBase gpu_ptr(ptr);
       stream_exec_->Deallocate(&gpu_ptr);
     }
-    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "GPUMemAllocator::Free", -1*num_bytes);
+    tracepoint(tensorflowTracer, gpu_bfc_free_entry, "memory", "GPUMemAllocator::Free", -1*num_bytes);
   }
 
  private:

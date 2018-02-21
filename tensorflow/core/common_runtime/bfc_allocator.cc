@@ -170,17 +170,17 @@ bool BFCAllocator::Extend(size_t rounded_bytes) {
 }
 
 BFCAllocator::ChunkHandle BFCAllocator::AllocateChunk() {
-  tracepoint(tensorflowTracer, allocate_chunk_entry, "BFCAllocator::AllocateChunk");
+  tracepoint(tensorflowTracer, allocate_chunk_entry, "memory", "BFCAllocator::AllocateChunk");
   if (free_chunks_list_ != kInvalidChunkHandle) {
     ChunkHandle h = free_chunks_list_;
     Chunk* c = ChunkFromHandle(h);
     free_chunks_list_ = c->next;
-    tracepoint(tensorflowTracer, allocate_chunk_exit, "BFCAllocator::AllocateChunk");
+    tracepoint(tensorflowTracer, allocate_chunk_exit, "memory", "BFCAllocator::AllocateChunk");
     return h;
   } else {
     ChunkHandle h = chunks_.size();
     chunks_.resize(h + 1);
-    tracepoint(tensorflowTracer, allocate_chunk_exit, "BFCAllocator::AllocateChunk");
+    tracepoint(tensorflowTracer, allocate_chunk_exit, "memory", "BFCAllocator::AllocateChunk");
     return h;
   }
 }
@@ -261,9 +261,9 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
   void* ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
   std::stringstream ss;
   ss<<ptr;
-  tracepoint(tensorflowTracer, allocate_raw_internal_entry, "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num);
+  tracepoint(tensorflowTracer, allocate_raw_internal_entry, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num);
   if (ptr != nullptr) {
-    tracepoint(tensorflowTracer, allocate_raw_internal_exit, "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 1);
+    tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 1);
     return ptr;
   }
 
@@ -272,7 +272,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
     ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
     ss<<ptr;
     if (ptr != nullptr) {
-      tracepoint(tensorflowTracer, allocate_raw_internal_exit, "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 1, 1);
+      tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 1, 1);
       return ptr;
     }
   }
@@ -287,7 +287,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
                  << strings::HumanReadableNumBytes(num_bytes)
                  << ".  See logs for memory state.";
   }
-  tracepoint(tensorflowTracer, allocate_raw_internal_exit, "BFCAllocator::AllocateRawInternal()",  ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 0);
+  tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()",  ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 0);
   return nullptr;
 }
 
@@ -405,7 +405,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   Chunk* c = ChunkFromHandle(h);
   std::stringstream ss;
   ss<<ptr;
-  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
+  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "memory", "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
   // Consider coalescing it.
   FreeAndMaybeCoalesce(h);
 
@@ -413,7 +413,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
   }
-  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
+  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "memory", "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
 }
 
 // Merges h1 and h2 when Chunk(h1)->next is h2 and Chunk(h2)->prev is c1.

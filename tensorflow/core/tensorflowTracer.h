@@ -15,10 +15,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     process_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, schedule_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(uint64_t, schedule, schedule_arg)
     )
@@ -27,10 +29,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     process_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, schedule_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(uint64_t, schedule, schedule_arg)
     )
@@ -40,9 +44,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     inline_ready_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
     )
 )
@@ -50,9 +56,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     inline_ready_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
     )
 )
@@ -61,9 +69,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     push_succ_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
     )
 )
@@ -71,10 +81,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     push_succ_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         int, is_ready_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(int, is_ready, is_ready_arg)
     )
@@ -84,9 +96,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     allocate_chunk_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
     )
 )
@@ -94,9 +108,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     allocate_chunk_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
     )
 )
@@ -105,6 +121,7 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     allocate_raw_internal_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg,
@@ -112,6 +129,7 @@ TRACEPOINT_EVENT(
         int, bin_num_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
@@ -123,6 +141,7 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     allocate_raw_internal_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg,
@@ -132,6 +151,7 @@ TRACEPOINT_EVENT(
         int, success_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
@@ -146,11 +166,13 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     deallocate_raw_internal_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
@@ -160,11 +182,13 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     deallocate_raw_internal_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
@@ -175,10 +199,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     do_create_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, container_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(container, container_arg)
     )
@@ -187,11 +213,13 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     do_create_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, container_arg,
         int, success_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(container, container_arg)
         ctf_integer(int, success, success_arg)
@@ -202,9 +230,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     cleanup_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, container_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, container_arg)
     )
 )
@@ -212,9 +242,11 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     cleanup_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, container_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, container_arg)
     )
 )
@@ -223,11 +255,13 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_bfc_alloc_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, num_bytes_arg,
         int, alignment_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(uint64_t, num_bytes, num_bytes_arg)
         ctf_integer(int, alignment, alignment_arg)
@@ -237,11 +271,13 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_bfc_alloc_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, num_bytes_arg,
         int, alignment_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(uint64_t, num_bytes, num_bytes_arg)
         ctf_integer(int, alignment, alignment_arg)
@@ -252,10 +288,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_bfc_free_entry,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, num_bytes_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(int64_t, num_bytes, num_bytes_arg)
     )
@@ -264,10 +302,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     gpu_bfc_free_exit,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         uint64_t, num_bytes_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(int64_t, num_bytes, num_bytes_arg)
     )
@@ -280,10 +320,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     session_start,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         int, count_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(int, count, count_arg)
     )
@@ -292,10 +334,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     session_end,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         int, count_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_integer(int, count, count_arg)
     )
@@ -305,10 +349,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     operation_start,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, placement_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(placement, placement_arg)
         ctf_string(name, name_arg)
     )
@@ -317,10 +363,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     operation_end,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, placement_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(placement, placement_arg)
         ctf_string(name, name_arg)
     )
@@ -330,10 +378,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     async_operation_start,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, placement_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(placement, placement_arg)
         ctf_string(name, name_arg)
     )
@@ -342,10 +392,12 @@ TRACEPOINT_EVENT(
     tensorflowTracer,
     async_operation_end,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, placement_arg,
         const char*, name_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(placement, placement_arg)
         ctf_string(name, name_arg)
     )
@@ -452,7 +504,6 @@ TRACEPOINT_EVENT(
         ctf_integer(int64_t, total_bytes_in_bin, total_bytes_in_bin_arg)
         ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
         ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
-
     )
 )
 TRACEPOINT_EVENT(
@@ -475,7 +526,6 @@ TRACEPOINT_EVENT(
         ctf_integer(int64_t, total_bytes_in_bin, total_bytes_in_bin_arg)
         ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
         ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
-
     )
 )
 
