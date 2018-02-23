@@ -34,7 +34,9 @@ TRACEPOINT_EVENT(
     grpcTracer,
     send_RecvTensor_request,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
+        const char*, rendezvous_key_arg,
         const char*, tensor_arg,
         const char*, src_device_arg,
         const char*, dst_device_arg,
@@ -42,7 +44,9 @@ TRACEPOINT_EVENT(
         const char*, response_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
         ctf_string(tensor, tensor_arg)
         ctf_string(src_device, src_device_arg)
         ctf_string(dst_device, dst_device_arg)
@@ -54,12 +58,14 @@ TRACEPOINT_EVENT(
     grpcTracer,
     receive_RecvTensor_request,
     TP_ARGS(
+        const char*, cat_arg,
         const char*, name_arg,
         const char*, rendezvous_key_arg,
         uint64_t, step_id_arg,
         uint32_t, bus_id_arg
     ),
     TP_FIELDS(
+        ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
         ctf_string(rendezvous_key, rendezvous_key_arg)
         ctf_integer(uint64_t, step_id, step_id_arg)
