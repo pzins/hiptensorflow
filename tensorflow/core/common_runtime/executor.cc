@@ -1558,11 +1558,12 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
             new AsyncState(params, tagged_node, &item, first_input, stats);
 
         auto done = [this, state]() {
-            std::thread::id this_id = std::this_thread::get_id();
-            std::cout << "@@@ ||  " << this_id << std::endl;
+        
           Device* device = impl_->params_.device;
-          tracepoint(tensorflowTracer, async_operation_end, "operation_async", device->name().c_str(), state->tagged_node.node->name().c_str());
+          std::string st =  "operation_async_" + device->name();
           NodeExecStats* stats = state->stats;      // Shorthand
+          if(stats) 
+            tracepoint(tensorflowTracer, async_operation_end, "operation_async_", device->name().c_str(), state->tagged_node.node->name().c_str());
           Entry* first_input = state->first_input;  // Shorthand
 
           if (vlog_) {
@@ -1602,17 +1603,21 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           if (completed) Finish();
         };
         if (stats) nodestats::SetOpStart(stats);
-        tracepoint(tensorflowTracer, async_operation_start, "operation_async", device->name().c_str(), op_kernel->name().c_str());
-        std::thread::id this_id = std::this_thread::get_id();
-        std::cout << "@@@  " << this_id << std::endl;
+        std::string st =  "operation_async_" + device->name();
+        if(stats_collector_) 
+            tracepoint(tensorflowTracer, async_operation_start, "operation_async_", device->name().c_str(), op_kernel->name().c_str());
         device->ComputeAsync(async, &state->ctx, done);
       } else {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
         if (stats) nodestats::SetOpStart(stats);
-        tracepoint(tensorflowTracer, operation_start, "operation_sync", device->name().c_str(), op_kernel->name().c_str());
+        std::string st =  "operation_sync_" + device->name();
+        if(stats_collector_)
+            tracepoint(tensorflowTracer, operation_start, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
-        tracepoint(tensorflowTracer, operation_end, "operation_sync", device->name().c_str(), op_kernel->name().c_str());
+        if(stats_collector_)
+            tracepoint(tensorflowTracer, operation_end, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
+        
         if (stats) nodestats::SetOpEnd(stats);
 
         s = ProcessOutputs(item, &ctx, &outputs, stats);
