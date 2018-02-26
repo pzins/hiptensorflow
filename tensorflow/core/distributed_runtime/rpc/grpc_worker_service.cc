@@ -238,6 +238,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RecvTensorHandlerRaw(
       WorkerCall<RecvTensorRequest, ::grpc::ByteBuffer>* call) {
+          std::cout << ";;;" << call->request.rendezvous_key() << std::endl;
     tracepoint(grpcTracer, receive_RecvTensor_request, "grpc", "RecvTensorHandlerRaw", call->request.rendezvous_key().c_str(),
         call->request.step_id(), call->request.client_locality().bus_id());
     Schedule([this, call]() {

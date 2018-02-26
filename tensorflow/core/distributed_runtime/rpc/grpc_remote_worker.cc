@@ -170,6 +170,8 @@ class GrpcRemoteWorker : public WorkerInterface {
     }
     const string& key = request->rendezvous_key();
     std::vector<string> key_parts = str_util::Split(key, ';');
+    std::cout << ";;;@@" << key << std::endl;
+
     tracepoint(grpcTracer, send_RecvTensor_request, "grpc", "RecvTensorAsync", key.c_str(),
                 key_parts[3].c_str(), key_parts[0].c_str(), key_parts[2].c_str(), request->DebugString().c_str(),
                 response->metadata().DebugString().c_str());
