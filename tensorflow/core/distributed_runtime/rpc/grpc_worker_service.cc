@@ -176,7 +176,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
                           RequestMessage, ResponseMessage>;
 
   void GetStatusHandler(WorkerCall<GetStatusRequest, GetStatusResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "GetStatusHandler");
+    tracepoint(grpcTracer, receive_request, "GetStatus");
     Schedule([this, call]() {
       Status s = worker_->GetStatus(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -186,7 +186,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupAllHandler(
       WorkerCall<CleanupAllRequest, CleanupAllResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "CleanupAllHandler");
+    tracepoint(grpcTracer, receive_request, "CleanupAll");
     Schedule([this, call]() {
       Status s = worker_->CleanupAll(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -196,7 +196,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RegisterGraphHandler(
       WorkerCall<RegisterGraphRequest, RegisterGraphResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "RegisterGraphHandler");
+    tracepoint(grpcTracer, receive_request, "RegisterGraph");
     Schedule([this, call]() {
       Status s = worker_->RegisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -206,7 +206,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void DeregisterGraphHandler(
       WorkerCall<DeregisterGraphRequest, DeregisterGraphResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "DeregisterGraphHandler");
+    tracepoint(grpcTracer, receive_request, "DeregisterGraph");
     Schedule([this, call]() {
       Status s = worker_->DeregisterGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -215,7 +215,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void RunGraphHandler(WorkerCall<RunGraphRequest, RunGraphResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "RunGraphHandler");
+    tracepoint(grpcTracer, receive_request, "RunGraph");
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       ProtoRunGraphRequest* wrapped_request =
@@ -238,8 +238,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RecvTensorHandlerRaw(
       WorkerCall<RecvTensorRequest, ::grpc::ByteBuffer>* call) {
-          std::cout << ";;;" << call->request.rendezvous_key() << std::endl;
-    tracepoint(grpcTracer, receive_RecvTensor_request, "grpc", "RecvTensorHandlerRaw", call->request.rendezvous_key().c_str(),
+    tracepoint(grpcTracer, receive_RecvTensor_request, "grpc", "RecvTensor", call->request.rendezvous_key().c_str(),
         call->request.step_id(), call->request.client_locality().bus_id());
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
@@ -256,7 +255,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void CleanupGraphHandler(
       WorkerCall<CleanupGraphRequest, CleanupGraphResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "CleanupGraphHandler");
+    tracepoint(grpcTracer, receive_request, "CleanupGraph");
     Schedule([this, call]() {
       Status s = worker_->CleanupGraph(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -265,7 +264,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void LoggingHandler(WorkerCall<LoggingRequest, LoggingResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "LoggingHandler");
+    tracepoint(grpcTracer, receive_request, "Logging");
     Schedule([this, call]() {
       Status s = worker_->Logging(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));
@@ -274,7 +273,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
   }
 
   void TracingHandler(WorkerCall<TracingRequest, TracingResponse>* call) {
-    tracepoint(grpcTracer, receive_request, "TracingHandler");
+    tracepoint(grpcTracer, receive_request, "Tracing");
     Schedule([this, call]() {
       Status s = worker_->Tracing(&call->request, &call->response);
       call->SendResponse(ToGrpcStatus(s));

@@ -55,33 +55,33 @@ class GrpcRemoteWorker : public WorkerInterface {
   void GetStatusAsync(const GetStatusRequest* request,
                       GetStatusResponse* response,
                       StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "GetStatusAsync");
+    tracepoint(grpcTracer, send_request, "GetStatus");
     IssueRequest(request, response, getstatus_, std::move(done));
   }
 
   void RegisterGraphAsync(const RegisterGraphRequest* request,
                           RegisterGraphResponse* response,
                           StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "RegisterGraphAsync");
+    tracepoint(grpcTracer, send_request, "RegisterGraph");
     IssueRequest(request, response, registergraph_, std::move(done));
   }
 
   void DeregisterGraphAsync(const DeregisterGraphRequest* request,
                             DeregisterGraphResponse* response,
                             StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "DeregisterGraphAsync");
+    tracepoint(grpcTracer, send_request, "DeregisterGraph");
     IssueRequest(request, response, deregistergraph_, std::move(done));
   }
 
   void RunGraphAsync(CallOptions* call_opts, const RunGraphRequest* request,
                      RunGraphResponse* response, StatusCallback done) override {
-     tracepoint(grpcTracer, send_request, "RunGraphAsync");
+     tracepoint(grpcTracer, send_request, "RunGraph");
     IssueRequest(request, response, rungraph_, std::move(done), call_opts);
   }
   void RunGraphAsync(CallOptions* call_opts, RunGraphRequestWrapper* request,
                      MutableRunGraphResponseWrapper* response,
                      StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "RunGraphAsync");
+    tracepoint(grpcTracer, send_request, "RunGraph");
     IssueRequest(&request->ToProto(), get_proto_from_wrapper(response),
                  rungraph_, std::move(done), call_opts);
   }
@@ -89,14 +89,14 @@ class GrpcRemoteWorker : public WorkerInterface {
   void CleanupGraphAsync(const CleanupGraphRequest* request,
                          CleanupGraphResponse* response,
                          StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "CleanupGraphAsync");
+    tracepoint(grpcTracer, send_request, "CleanupGraph");
     IssueRequest(request, response, cleanupgraph_, std::move(done));
   }
 
   void CleanupAllAsync(const CleanupAllRequest* request,
                        CleanupAllResponse* response,
                        StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "CleanupAllAsync");
+    tracepoint(grpcTracer, send_request, "CleanupAll");
     IssueRequest(request, response, cleanupall_, std::move(done));
   }
 
@@ -170,9 +170,7 @@ class GrpcRemoteWorker : public WorkerInterface {
     }
     const string& key = request->rendezvous_key();
     std::vector<string> key_parts = str_util::Split(key, ';');
-    std::cout << ";;;@@" << key << std::endl;
-
-    tracepoint(grpcTracer, send_RecvTensor_request, "grpc", "RecvTensorAsync", key.c_str(),
+    tracepoint(grpcTracer, send_RecvTensor_request, "grpc", "RecvTensor", key.c_str(),
                 key_parts[3].c_str(), key_parts[0].c_str(), key_parts[2].c_str(), request->DebugString().c_str(),
                 response->metadata().DebugString().c_str());
     IssueRequest(req_copy ? req_copy : request, response, recvtensor_,
@@ -181,13 +179,13 @@ class GrpcRemoteWorker : public WorkerInterface {
 
   void LoggingAsync(const LoggingRequest* request, LoggingResponse* response,
                     StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "LoggingAsync");
+    tracepoint(grpcTracer, send_request, "Logging");
     IssueRequest(request, response, logging_, done);
   }
 
   void TracingAsync(const TracingRequest* request, TracingResponse* response,
                     StatusCallback done) override {
-    tracepoint(grpcTracer, send_request, "TracingAsync");
+    tracepoint(grpcTracer, send_request, "Tracing");
     IssueRequest(request, response, tracing_, done);
   }
 
