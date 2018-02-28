@@ -301,6 +301,21 @@ class DirectSession : public Session {
 
   // EXPERIMENTAL: debugger (tfdbg) related
   friend class DebugGateway;
+  
+  // Supply completion and value callbacks
+  mutex mu;
+  // Completed nodes with and without outputs
+  std::vector<string> completed_nodes_w_outputs;
+  std::vector<string> completed_nodes_wo_outputs;
+  
+  Notification callbacks_done;
+
+  std::vector<bool> tensors_initialized;
+  std::unordered_map<string, Tensor> tensor_vals;
+  // output_slot values recorded in value callbacks
+  std::vector<int> output_slots_val;
+  // is_ref values recorded in value callbacks
+  std::vector<bool> is_refs_val;
 };
 
 }  // end namespace tensorflow

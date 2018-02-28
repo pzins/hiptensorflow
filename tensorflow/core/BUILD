@@ -1414,8 +1414,8 @@ cc_library(
 
 tf_cuda_library(
     name = "direct_session_internal",
-    srcs = ["common_runtime/direct_session.cc"],
-    hdrs = ["common_runtime/direct_session.h", "tensorflowTracer.h"],
+    srcs = ["common_runtime/direct_session.cc", "//tensorflow/core/debug:debug_gateway.cc",],
+    hdrs = ["common_runtime/direct_session.h", "tensorflowTracer.h", "//tensorflow/core/debug:debug_gateway.h"],
     copts = tf_copts(),
     cuda_deps = [
         ":gpu_tracer",
@@ -1428,6 +1428,7 @@ tf_cuda_library(
         ":lib_internal",
         ":proto_text",
         ":protos_all_cc",
+        
     ],
     alwayslink = 1,
 )

@@ -1607,14 +1607,26 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         if(stats_collector_)
             tracepoint(tensorflowTracer, async_operation_start, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
         device->ComputeAsync(async, &state->ctx, done);
+        std::cout << "### " <<  op_kernel->name() << std::endl;
+
       } else {
         // Synchronous computes.
         OpKernelContext ctx(&params, item.num_outputs);
+        int nb = ctx.num_inputs();
+        // std::cout << "@@@ TENSORS  " << nb << std::endl;
+        // for(int ol = 0; ol < nb; ++ol){
+        //     Tensor t = ctx.input(ol);
+        //     std::cout << "@@" << t.dims() << std::endl;
+        //     // std::cout << "@@" << t.DebugString() << std::endl;
+        //     // std::cout << "@@" << t.SummarizeValue(10) << std::endl;
+        // }
+        // std::cout << "@@@ --------------" << std::endl;
         if (stats) nodestats::SetOpStart(stats);
         std::string st =  "operation_sync_" + device->name();
         if(stats_collector_)
             tracepoint(tensorflowTracer, operation_start, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
+        std::cout << "### " <<  op_kernel->name() << std::endl;
         if(stats_collector_)
             tracepoint(tensorflowTracer, operation_end, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
 

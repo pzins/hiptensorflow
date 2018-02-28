@@ -25,6 +25,7 @@ DebugGateway::DebugGateway(DirectSession* session) : session_(session) {
   session_->node_outputs_callback_ = [this](
       const string& node_name, const int output_slot, const Tensor* tensor,
       const bool is_ref, OpKernelContext* ctx) {
+          std::cout << "@@@ " << node_name << std::endl;
     if (comp_cb_ != nullptr && output_slot <= 0) {
       // The node completion callback is invoked once for a node regardless
       // of whether the node has zero, one or more outputs.
@@ -32,15 +33,20 @@ DebugGateway::DebugGateway(DirectSession* session) : session_(session) {
       // node_outputs_callback_ is invoked for a node with no output. If that
       // is the case, notify the callback that the node in question has no
       // output.
+      std::cout << "comp_cb_" << std::endl;
       comp_cb_(node_name, output_slot == 0);
     }
 
     // Copy tensor values (e.g., from GPU to host) only if the
     // value callback is not nullptr.
+    std::cout << "not comp_cb_" << std::endl;
     if (val_cb_ != nullptr && output_slot >= 0) {
+        std::cout << "val_cb_" << std::endl;
       CopyTensor(
           node_name, output_slot, tensor, ctx,
           [this, node_name, output_slot, is_ref](const Tensor* copied_tensor) {
+              std::cout << "CopyTensor callback" << std::endl;
+
             val_cb_(node_name, output_slot, *copied_tensor, is_ref);
           });
     }
@@ -66,6 +72,7 @@ void DebugGateway::SetNodeValueCallback(NodeValueCallback callback) {
 void DebugGateway::CopyTensor(const string& node_name, const int output_slot,
                               const Tensor* src_tensor, OpKernelContext* ctx,
                               CopyDoneCallback copy_done_cb) {
+                                  std::cout<<"CopyTensor"<<std::endl;
   Device* device = static_cast<Device*>(ctx->device());
 
   // Determine if the tensor is initialized properly.

@@ -12,13 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+#include <sstream>
+#include <fstream>
 #include "tensorflow/core/tensorflowTracer.h"
 #include "tensorflow/core/common_runtime/direct_session.h"
 
 #include <atomic>
 #include <string>
 #include <vector>
-
+#include "tensorflow/core/debug/debug_gateway.h"
 #include "tensorflow/core/common_runtime/constant_folding.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
 #include "tensorflow/core/common_runtime/device_factory.h"
@@ -558,6 +560,39 @@ Status DirectSession::Run(const RunOptions& run_options,
       exec_and_lib.graph->ToGraphDef(partition_graph_def);
     }
   }
+  std::cout << "--------------------------------------------" << std::endl;
+  std::cout << ">>> completed_nodes_w_outputs" << std::endl;
+  for(auto i : completed_nodes_w_outputs) {
+      std::cout << ">>> " << i << std::endl;
+  }
+  std::cout << ">>> completed_nodes_wo_outputs" << std::endl;
+  for(auto i : completed_nodes_wo_outputs) {
+      std::cout << ">>> " << i << std::endl;
+  }
+  std::cout << ">>> output_slots_val" << std::endl;
+  for(auto i : output_slots_val) {
+      std::cout << ">>> " << i << std::endl;
+  }
+  std::cout << ">>> tensor_vals" << std::endl;
+  
+  std::stringstream ss;
+  int c = 0;
+  for(auto i : tensor_vals) {
+      std::cout << ">>> " << i.first << std::endl;
+      std::cout << ">>> " << i.second.SummarizeValue(5) << std::endl;
+      
+      std::ofstream myFile;
+      ss<<c;
+      myFile.open("/home/pierre/tensors/tensor_" + ss.str());
+      // myFile << i.second.SummarizeValue(i.second.NumElements());
+      myFile << i.second.tensor_data().data();
+      myFile.flush();
+      myFile.close();
+      c++;
+  }
+  std::cout << "--------------------------------------------" << std::endl;
+
+
   tracepoint(tensorflowTracer, session_end, "session", "DirectSession::Run", count);
   return Status::OK();
 }
@@ -982,7 +1017,43 @@ Status DirectSession::GetOrCreateExecutors(
         delete kernel;
       }
     };
+    
+    DebugGateway* d = new DebugGateway(this);
+
+    
+
+
+    d->SetNodeCompletionCallback(
+        [this](
+            const string& node_name, const bool any_output) {
+                std::cout << "::: " << "SetNodeCompletionCallback" << std::endl;
+          mutex_lock l(this->mu);
+          if (any_output) {
+            this->completed_nodes_w_outputs.push_back(node_name);
+          } else {
+            this->completed_nodes_wo_outputs.push_back(node_name);
+          }
+        });
+
+
+    d->SetNodeValueCallback(
+        [this](const string& node_name, const int output_slot,
+                          const Tensor& tensor_value, const bool is_ref) {
+          std::cout << "::: " << "SetNodeValueCallback" << std::endl;
+          mutex_lock l(this->mu);
+          this->tensors_initialized.push_back(tensor_value.IsInitialized());
+          this->tensor_vals.insert(std::make_pair(node_name, tensor_value));
+          this->output_slots_val.push_back(output_slot);
+          this->is_refs_val.push_back(is_ref);
+
+          // Set the notification once we have the value from the target node.
+          // if (node_name == y_neg_ && !callbacks_done.HasBeenNotified()) {
+          //   callbacks_done.Notify();
+          // }
+        });
+    
     params.node_outputs_cb = node_outputs_callback_;
+
 
     optimizer.Optimize(lib, options_.env, device, &iter->second);
 
