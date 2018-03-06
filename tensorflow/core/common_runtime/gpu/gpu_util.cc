@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include "tensorflow/core/distributed_runtime/rpc/grpcTracer.h"
 #include "tensorflow/core/common_runtime/gpu/gpu_util.h"
 
 #include "tensorflow/core/common_runtime/copy_tensor.h"
@@ -118,6 +118,7 @@ void GPUUtil::SetProtoFromGPU(const Tensor& tensor, Device* dev,
                               const DeviceContext* device_context,
                               TensorProto* proto, bool is_dead,
                               StatusCallback done) {
+    tracepoint(grpcTracer, test_start_SetProtoFromGPU, "grpc", "SetProtoFromGPU");
   VLOG(1) << "SetProtoFromGPU device_context " << device_context;
   const DeviceBase::GpuDeviceInfo* dev_info = nullptr;
   gpu::Stream* send_stream = nullptr;
@@ -184,6 +185,7 @@ void GPUUtil::SetProtoFromGPU(const Tensor& tensor, Device* dev,
         }
         done(Status::OK());
       });
+      tracepoint(grpcTracer, test_end_SetProtoFromGPU, "grpc", "SetProtoFromGPU");
 }
 
 // static

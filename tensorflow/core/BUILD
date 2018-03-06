@@ -1491,6 +1491,7 @@ tf_cuda_library(
         "common_runtime/gpu/gpu_util.h",
         "common_runtime/gpu/pool_allocator.h",
         "common_runtime/gpu/process_state.h",
+        "//tensorflow/core/distributed_runtime/rpc:grpcTracer.h",
     ],
     copts = tf_copts(),
     linkstatic = 1,

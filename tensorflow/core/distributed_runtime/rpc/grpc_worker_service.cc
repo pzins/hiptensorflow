@@ -245,6 +245,7 @@ class GrpcWorkerService : public AsyncServiceInterface {
       call->SetCancelCallback([call_opts]() { call_opts->StartCancel(); });
       worker_->RecvTensorAsync(call_opts, &call->request, &call->response,
                                [call, call_opts](const Status& s) {
+                                 tracepoint(grpcTracer, test_end_RecvTensorAsync, "grpc", call->request.rendezvous_key().c_str());         
                                  call->ClearCancelCallback();
                                  delete call_opts;
                                  call->SendResponse(ToGrpcStatus(s));
@@ -311,6 +312,7 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
                                  StatusCallback done) {
   const int64 step_id = request->step_id();
   const string& key = request->rendezvous_key();
+  tracepoint(grpcTracer, test_start_RecvTensorAsync, "grpc", key.c_str());         
   TRACEPRINTF("RecvTensor: %lld %s", step_id, key.c_str());
   Rendezvous::ParsedKey parsed;
   Status s = Rendezvous::ParseKey(key, &parsed);

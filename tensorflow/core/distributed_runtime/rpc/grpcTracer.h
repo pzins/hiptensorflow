@@ -73,6 +73,83 @@ TRACEPOINT_EVENT(
     )
 )
 
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_start_parallel_executors,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_end_parallel_executors,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_start_SetProtoFromGPU,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_end_SetProtoFromGPU,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+
+
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_start_RecvTensorAsync,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    grpcTracer,
+    test_end_RecvTensorAsync,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+
+
 /*
 GetStatusAsync
 RegisterGraphAsync
