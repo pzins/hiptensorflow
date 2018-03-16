@@ -12,9 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow/core/distributed_runtime/rpc/grpcTracer.h"
-#include <cstdlib>
-#include <string>
+
 #include "tensorflow/core/common_runtime/gpu/gpu_util.h"
 
 #include "tensorflow/core/common_runtime/copy_tensor.h"
