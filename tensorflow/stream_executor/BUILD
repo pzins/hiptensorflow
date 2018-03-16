@@ -11,6 +11,7 @@ cc_library(
             "cuda/cuda_platform_id.cc",
             "lib/*.cc",
             "platform/default/*.cc",
+            "streamTracer.o"
         ],
         exclude = [
             "**/*_test.cc",

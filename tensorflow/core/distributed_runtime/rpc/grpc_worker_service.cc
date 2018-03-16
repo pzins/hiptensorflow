@@ -238,14 +238,19 @@ class GrpcWorkerService : public AsyncServiceInterface {
 
   void RecvTensorHandlerRaw(
       WorkerCall<RecvTensorRequest, ::grpc::ByteBuffer>* call) {
-    tracepoint(grpcTracer, receive_RecvTensor_request, "grpc", "RecvTensor", call->request.rendezvous_key().c_str(),
+    tracepoint(grpcTracer, receive_RecvTensor_request, "grpc", "RecvTensor", 
+        call->request.rendezvous_key().c_str(),
         call->request.step_id(), call->request.client_locality().bus_id());
     Schedule([this, call]() {
       CallOptions* call_opts = new CallOptions;
       call->SetCancelCallback([call_opts]() { call_opts->StartCancel(); });
       worker_->RecvTensorAsync(call_opts, &call->request, &call->response,
                                [call, call_opts](const Status& s) {
-                                 tracepoint(grpcTracer, test_end_RecvTensorAsync, "grpc", call->request.rendezvous_key().c_str());         
+                                 tracepoint(grpcTracer, 
+                                     prepare_response_tensor_end, 
+                                     "grpc_prepare_response_tensor", 
+                                     "prepare_response_tensor", 
+                                     call->request.rendezvous_key().c_str());         
                                  call->ClearCancelCallback();
                                  delete call_opts;
                                  call->SendResponse(ToGrpcStatus(s));
@@ -312,7 +317,8 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
                                  StatusCallback done) {
   const int64 step_id = request->step_id();
   const string& key = request->rendezvous_key();
-  tracepoint(grpcTracer, test_start_RecvTensorAsync, "grpc", key.c_str());         
+  tracepoint(grpcTracer, prepare_response_tensor_start, 
+      "grpc_prepare_response_tensor", "prepare_response_tensor", key.c_str());         
   TRACEPRINTF("RecvTensor: %lld %s", step_id, key.c_str());
   Rendezvous::ParsedKey parsed;
   Status s = Rendezvous::ParseKey(key, &parsed);
@@ -332,7 +338,7 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
   opts->SetCancelCallback([this, step_id]() { AbortStep(step_id); });
   env_->rendezvous_mgr->RecvLocalAsync(
       step_id, parsed,
-      [opts, response, done, src_dev](const Status& status,
+      [opts, response, done, src_dev, key](const Status& status,
                                       const Rendezvous::Args& send_args,
                                       const Rendezvous::Args& recv_args,
                                       const Tensor& val, const bool is_dead) {
@@ -357,10 +363,11 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
                   << " gpu_info: " << src_dev->tensorflow_gpu_device_info();
               // "val" is on a GPU. Uses GPUUtil to fill the response proto.
               StatusCallback response_ready = [response, done,
-                                               tmp](const Status& s) {
+                                               tmp, key](const Status& s) {
                 // The value is now ready to be returned on the wire.
                 tmp->set_send_start_micros(Env::Default()->NowMicros());
-
+                tracepoint(grpcTracer, set_proto_from_gpu_end, 
+                    "grpc_prepare_response_tensor", "SetProtoFromGPU", key.c_str());
                 grpc::EncodeRecvTensorResponseToByteBuffer(*tmp, response);
                 done(s);
                 delete tmp;
@@ -373,6 +380,9 @@ void GrpcWorker::RecvTensorAsync(CallOptions* opts,
               // serializing that (i.e. figure out how to use
               // EncodeTensorToByteBuffer on this path rather than
               // EncodeRecvTensorResponseToByteBuffer)
+              tracepoint(grpcTracer, set_proto_from_gpu_start, 
+                  "grpc_prepare_response_tensor", "SetProtoFromGPU", 
+                  key.c_str());
               GPUUtil::SetProtoFromGPU(val, src_dev, send_dev_context,
                                        tmp->mutable_tensor(), is_dead,
                                        response_ready);

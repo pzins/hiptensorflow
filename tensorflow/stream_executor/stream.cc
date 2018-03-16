@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include "tensorflow/stream_executor/streamTracer.h"
 #include "tensorflow/stream_executor/stream.h"
 
 #include "tensorflow/stream_executor/platform/port.h"
@@ -3776,19 +3776,21 @@ Stream &Stream::ThenPopulateRandUniform(
 Stream &Stream::ThenMemcpy(void *host_dst, const DeviceMemoryBase &gpu_src,
                            uint64 size) {
   VLOG_CALL(PARAM(host_dst), PARAM(gpu_src), PARAM(size));
-
+  tracepoint(streamTracer, stream_then_memcpy_device_to_host_start, "themmemcpy", "D2H");
   if (ok()) {
     CheckError(parent_->Memcpy(this, host_dst, gpu_src, size));
   } else {
     LOG(INFO) << "stream " << this
               << " did not memcpy device-to-host; source: " << gpu_src.opaque();
   }
+  tracepoint(streamTracer, stream_then_memcpy_device_to_host_end, "themmemcpy", "D2H");
   return *this;
 }
 
 Stream &Stream::ThenMemcpy(DeviceMemoryBase *gpu_dst, const void *host_src,
                            uint64 size) {
   VLOG_CALL(PARAM(gpu_dst), PARAM(host_src), PARAM(size));
+  tracepoint(streamTracer, stream_then_memcpy_host_to_device_start, "themmemcpy", "H2D");
 
   if (ok()) {
     CheckError(parent_->Memcpy(this, gpu_dst, host_src, size));
@@ -3796,12 +3798,14 @@ Stream &Stream::ThenMemcpy(DeviceMemoryBase *gpu_dst, const void *host_src,
     LOG(INFO) << "stream " << this
               << " did not memcpy host-to-device; source: " << host_src;
   }
+  tracepoint(streamTracer, stream_then_memcpy_host_to_device_end, "themmemcpy", "H2D");
   return *this;
 }
 
 Stream &Stream::ThenMemcpy(DeviceMemoryBase *gpu_dst,
                            const DeviceMemoryBase &gpu_src, uint64 size) {
   VLOG_CALL(PARAM(gpu_dst), PARAM(gpu_src), PARAM(size));
+  tracepoint(streamTracer, stream_then_memcpy_device_to_device_start, "themmemcpy", "D2D");
 
   if (ok()) {
     CheckError(parent_->MemcpyDeviceToDevice(this, gpu_dst, gpu_src, size));
@@ -3809,6 +3813,7 @@ Stream &Stream::ThenMemcpy(DeviceMemoryBase *gpu_dst,
     LOG(INFO) << "stream " << this
               << " did not memcpy gpu-to-gpu; source: " << &gpu_src;
   }
+  tracepoint(streamTracer, stream_then_memcpy_device_to_device_end, "themmemcpy", "D2D");
   return *this;
 }
 

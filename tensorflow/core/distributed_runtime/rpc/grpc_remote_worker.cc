@@ -103,6 +103,9 @@ class GrpcRemoteWorker : public WorkerInterface {
   void RecvTensorAsync(CallOptions* call_opts, const RecvTensorRequest* request,
                        TensorResponse* response, StatusCallback done) override {
     VLOG(1) << "RecvTensorAsync req: " << request->DebugString();
+    const string& key = request->rendezvous_key();
+    std::vector<string> key_parts = str_util::Split(key, ';');
+    tracepoint(grpcTracer, send_request_tensor_start, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
     int64 start_usec = Env::Default()->NowMicros();
     // Don't propagate dma_ok over gRPC.
     RecvTensorRequest* req_copy = nullptr;
@@ -116,9 +119,18 @@ class GrpcRemoteWorker : public WorkerInterface {
     StatusCallback wrapper_done;
     const StatusCallback* cb_to_use;
     if (!logging_active && req_copy == nullptr) {
-      cb_to_use = &done;  // No additional work to do, so just use done directly
+        wrapper_done = [req_copy, done, request](Status s) {
+        const string& key = request->rendezvous_key();
+        std::vector<string> key_parts = str_util::Split(key, ';');
+        tracepoint(grpcTracer, send_request_tensor_end, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
+        done(s);
+      };
+      cb_to_use = &wrapper_done;
     } else if (!logging_active) {
-      wrapper_done = [req_copy, done](Status s) {
+      wrapper_done = [req_copy, done, request](Status s) {
+        const string& key = request->rendezvous_key();
+        std::vector<string> key_parts = str_util::Split(key, ';');
+        tracepoint(grpcTracer, send_request_tensor_end, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
         delete req_copy;
         done(s);
       };
@@ -126,6 +138,9 @@ class GrpcRemoteWorker : public WorkerInterface {
     } else {
       wrapper_done = [this, request, req_copy, response, done,
                       start_usec](Status s) {
+      const string& key = request->rendezvous_key();
+      std::vector<string> key_parts = str_util::Split(key, ';');
+      tracepoint(grpcTracer, send_request_tensor_end, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
         if (logger_->LoggingActive()) {
           int64 end_usec = Env::Default()->NowMicros();
           int64 step_id = request->step_id();
@@ -168,8 +183,6 @@ class GrpcRemoteWorker : public WorkerInterface {
       };
       cb_to_use = &wrapper_done;
     }
-    const string& key = request->rendezvous_key();
-    std::vector<string> key_parts = str_util::Split(key, ';');
     tracepoint(grpcTracer, send_RecvTensor_request, "grpc", "RecvTensor", key.c_str(),
                 key_parts[3].c_str(), key_parts[0].c_str(), key_parts[2].c_str(), request->DebugString().c_str(),
                 response->metadata().DebugString().c_str());

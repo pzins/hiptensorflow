@@ -9,6 +9,11 @@
 
 #include <lttng/tracepoint.h>
 
+
+// Sending and receiving request tracepoint
+// For GetStatusAsync, RegisterGraphAsync, DeregisterGraphAsync, RunGraphAsync, 
+// CleanupGraphAsync, CleanupAllAsync, LoggingAsync and TracingAsync but not 
+// RecvTensorAsync
 TRACEPOINT_EVENT(
     grpcTracer,
     send_request,
@@ -30,6 +35,7 @@ TRACEPOINT_EVENT(
     )
 )
 
+// Sending and receiving request tracepoint for RecvTensorAsync
 TRACEPOINT_EVENT(
     grpcTracer,
     send_RecvTensor_request,
@@ -73,108 +79,97 @@ TRACEPOINT_EVENT(
     )
 )
 
+// Describing the time taken to get a protobuf (CPU RAM) from a GPU Tensor
 TRACEPOINT_EVENT(
     grpcTracer,
-    test_start_parallel_executors,
+    set_proto_from_gpu_start,
     TP_ARGS(
         const char*, cat_arg,
-        const char*, name_arg
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
     )
 )
 TRACEPOINT_EVENT(
     grpcTracer,
-    test_end_parallel_executors,
+    set_proto_from_gpu_end,
     TP_ARGS(
         const char*, cat_arg,
-        const char*, name_arg
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
     )
 )
 
+// Describing the duration between the recption of a tensor request and the 
+// response with the tensor value 
 TRACEPOINT_EVENT(
     grpcTracer,
-    test_start_SetProtoFromGPU,
+    prepare_response_tensor_start,
     TP_ARGS(
         const char*, cat_arg,
-        const char*, name_arg
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
-    )
-)
-TRACEPOINT_EVENT(
-    grpcTracer,
-    test_end_SetProtoFromGPU,
-    TP_ARGS(
-        const char*, cat_arg,
-        const char*, name_arg
-    ),
-    TP_FIELDS(
-        ctf_string(cat, cat_arg)
-        ctf_string(name, name_arg)
-    )
-)
-
-
-TRACEPOINT_EVENT(
-    grpcTracer,
-    test_start_RecvTensorAsync,
-    TP_ARGS(
-        const char*, cat_arg,
-        const char*, name_arg
-    ),
-    TP_FIELDS(
-        ctf_string(cat, cat_arg)
-        ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
     )
 )
 TRACEPOINT_EVENT(
     grpcTracer,
-    test_end_RecvTensorAsync,
+    prepare_response_tensor_end,
     TP_ARGS(
         const char*, cat_arg,
-        const char*, name_arg
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
     )
 )
 
-
-/*
-GetStatusAsync
-RegisterGraphAsync
-DeregisterGraphAsync
-RunGraphAsync
-CleanupGraphAsync
-CleanupAllAsync
-RecvTensorAsync
-LoggingAsync
-TracingAsync
-
-
-GetStatusHandler
-CleanupAllHandler
-RegisterGraphHandler
-DeregisterGraphHandler
-RunGraphHandler
-RecvTensorHandlerRaw
-CleanupGraphHandler
-LoggingHandler
-TracingHandler
-*/
-
-
-
+// Describing the duration between the sending request for a tensor
+// and the moment when the response arrives
+TRACEPOINT_EVENT(
+    grpcTracer,
+    send_request_tensor_start,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    grpcTracer,
+    send_request_tensor_end,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg,
+        const char*, rendezvous_key_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+        ctf_string(rendezvous_key, rendezvous_key_arg)
+    )
+)
 
 #endif
 
