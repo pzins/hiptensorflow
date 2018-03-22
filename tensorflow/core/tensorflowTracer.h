@@ -123,6 +123,7 @@ TRACEPOINT_EVENT(
     TP_ARGS(
         const char*, cat_arg,
         const char*, name_arg,
+        const char*, alloc_name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg,
         int, rounded_bytes_arg,
@@ -131,6 +132,7 @@ TRACEPOINT_EVENT(
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(alloc_name, alloc_name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
         ctf_integer(int, rounded_bytes, rounded_bytes_arg)
@@ -143,6 +145,7 @@ TRACEPOINT_EVENT(
     TP_ARGS(
         const char*, cat_arg,
         const char*, name_arg,
+        const char*, alloc_name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg,
         int, rounded_bytes_arg,
@@ -153,6 +156,7 @@ TRACEPOINT_EVENT(
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(alloc_name, alloc_name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
         ctf_integer(int, rounded_bytes, rounded_bytes_arg)
@@ -168,12 +172,14 @@ TRACEPOINT_EVENT(
     TP_ARGS(
         const char*, cat_arg,
         const char*, name_arg,
+        const char*, alloc_name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(alloc_name, alloc_name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
     )
@@ -184,12 +190,14 @@ TRACEPOINT_EVENT(
     TP_ARGS(
         const char*, cat_arg,
         const char*, name_arg,
+        const char*, alloc_name_arg,
         const char*, ptr_arg,
         int, num_bytes_arg
     ),
     TP_FIELDS(
         ctf_string(cat, cat_arg)
         ctf_string(name, name_arg)
+        ctf_string(alloc_name, alloc_name_arg)
         ctf_string(ptr, ptr_arg)
         ctf_integer(int, num_bytes, num_bytes_arg)
     )
@@ -428,7 +436,7 @@ TRACEPOINT_EVENT(
 
 TRACEPOINT_EVENT(
     tensorflowTracer,
-    gpu_bfc_chunks_stats,
+    bfc_chunks_stats,
     TP_ARGS(
         const char*, allocator_name_arg,
         uint64_t, total_bytes_in_use_arg,
@@ -457,58 +465,7 @@ TRACEPOINT_EVENT(
 
 TRACEPOINT_EVENT(
     tensorflowTracer,
-    cpu_bfc_chunks_stats,
-    TP_ARGS(
-        const char*, allocator_name_arg,
-        uint64_t, total_bytes_in_use_arg,
-        uint64_t, total_requested_bytes_in_use_arg,
-        uint64_t, total_wasted_bytes_in_use_arg,
-        uint64_t, total_bytes_arg,
-        uint64_t, total_requested_bytes_arg,
-        uint64_t, total_wasted_bytes_arg,
-        uint64_t, chunks_arg,
-        uint64_t, in_use_chunks_arg,
-        uint64_t, free_chunks_arg
-    ),
-    TP_FIELDS(
-        ctf_string(allocator_name, allocator_name_arg)
-        ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
-        ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
-        ctf_integer(int64_t, total_wasted_bytes_in_use, total_wasted_bytes_in_use_arg)
-        ctf_integer(int64_t, total_bytes, total_bytes_arg)
-        ctf_integer(int64_t, total_requested_bytes, total_requested_bytes_arg)
-        ctf_integer(int64_t, total_wasted_bytes, total_wasted_bytes_arg)
-        ctf_integer(int64_t, chunks, chunks_arg)
-        ctf_integer(int64_t, in_use_chunks, in_use_chunks_arg)
-        ctf_integer(int64_t, free_chunks, free_chunks_arg)
-    )
-)
-
-TRACEPOINT_EVENT(
-    tensorflowTracer,
-    gpu_bfc_bins_stats,
-    TP_ARGS(
-        const char*, allocator_name_arg,
-        uint64_t, bin_numero_arg,
-        uint64_t, total_chunks_in_bin_arg,
-        uint64_t, total_chunks_in_use_arg,
-        uint64_t, total_bytes_in_bin_arg,
-        uint64_t, total_bytes_in_use_arg,
-        uint64_t, total_requested_bytes_in_use_arg
-    ),
-    TP_FIELDS(
-        ctf_string(allocator_name, allocator_name_arg)
-        ctf_integer(int64_t, bin_numero, bin_numero_arg)
-        ctf_integer(int64_t, total_chunks_in_bin, total_chunks_in_bin_arg)
-        ctf_integer(int64_t, total_chunks_in_use, total_chunks_in_use_arg)
-        ctf_integer(int64_t, total_bytes_in_bin, total_bytes_in_bin_arg)
-        ctf_integer(int64_t, total_bytes_in_use, total_bytes_in_use_arg)
-        ctf_integer(int64_t, total_requested_bytes_in_use, total_requested_bytes_in_use_arg)
-    )
-)
-TRACEPOINT_EVENT(
-    tensorflowTracer,
-    cpu_bfc_bins_stats,
+    bfc_bins_stats,
     TP_ARGS(
         const char*, allocator_name_arg,
         uint64_t, bin_numero_arg,

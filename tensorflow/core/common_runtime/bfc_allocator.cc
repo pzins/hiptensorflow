@@ -261,9 +261,9 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
   void* ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
   std::stringstream ss;
   ss<<ptr;
-  tracepoint(tensorflowTracer, allocate_raw_internal_entry, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num);
+  tracepoint(tensorflowTracer, allocate_raw_internal_entry, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num);
   if (ptr != nullptr) {
-    tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 1);
+    tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 1);
     return ptr;
   }
 
@@ -272,7 +272,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
     ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
     ss<<ptr;
     if (ptr != nullptr) {
-      tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 1, 1);
+      tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 1, 1);
       return ptr;
     }
   }
@@ -287,7 +287,7 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
                  << strings::HumanReadableNumBytes(num_bytes)
                  << ".  See logs for memory state.";
   }
-  tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()",  ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 0);
+  tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 0);
   return nullptr;
 }
 
@@ -405,7 +405,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   Chunk* c = ChunkFromHandle(h);
   std::stringstream ss;
   ss<<ptr;
-  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "memory", "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
+  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "memory", "BFCAllocator::DeallocateRawInternal", Name().c_str(), ss.str().c_str(), -1*c->size);
   // Consider coalescing it.
   FreeAndMaybeCoalesce(h);
 
@@ -413,7 +413,7 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
   }
-  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "memory", "BFCAllocator::DeallocateRawInternal", ss.str().c_str(), -1*c->size);
+  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "memory", "BFCAllocator::DeallocateRawInternal", Name().c_str(), ss.str().c_str(), -1*c->size);
 }
 
 // Merges h1 and h2 when Chunk(h1)->next is h2 and Chunk(h2)->prev is c1.
@@ -686,17 +686,10 @@ void BFCAllocator::Profile() {
         h = c->next;
       }
     }
-    if(Name().find("gpu") != std::string::npos) {
-        tracepoint(tensorflowTracer, gpu_bfc_chunks_stats, Name().c_str(), 
+    tracepoint(tensorflowTracer, bfc_chunks_stats, Name().c_str(), 
         total_bytes_in_use, total_requested_bytes_in_use, total_bytes_in_use - total_requested_bytes_in_use,
         total_bytes, total_requested_bytes, total_bytes - total_requested_bytes,
         chunks, in_use_chunks, free_chunks);
-    } else {
-        tracepoint(tensorflowTracer, cpu_bfc_chunks_stats, Name().c_str(), 
-        total_bytes_in_use, total_requested_bytes_in_use, total_bytes_in_use - total_requested_bytes_in_use,
-        total_bytes, total_requested_bytes, total_bytes - total_requested_bytes   ,
-        chunks, in_use_chunks, free_chunks);
-    }
 
     // Iterate over the bins to output the statistics
     for (BinNum bin_num = 0; bin_num < kNumBins; bin_num++) {
@@ -705,18 +698,10 @@ void BFCAllocator::Profile() {
        CHECK_EQ(b->free_chunks.size(),
                 bin_info.total_chunks_in_bin - bin_info.total_chunks_in_use);
        
-       if(Name().find("gpu") != std::string::npos) {
-           tracepoint(tensorflowTracer, gpu_bfc_bins_stats, Name().c_str(), bin_num,
+       tracepoint(tensorflowTracer, bfc_bins_stats, Name().c_str(), bin_num,
            bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
            bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
            bin_info.total_requested_bytes_in_use);
-       }
-       else {
-           tracepoint(tensorflowTracer, cpu_bfc_bins_stats, Name().c_str(), bin_num,
-           bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
-           bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
-           bin_info.total_requested_bytes_in_use);    
-      }        
     }
 }
 
