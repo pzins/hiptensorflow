@@ -46,6 +46,7 @@ cc_library(
             exclude = ["cuda/cuda_platform_id.cc"],
         ),
     ),
+    hdrs = ["//tensorflow/core:tensorflowTracer.h"],
     data = [
         "//tensorflow/core:cuda",
         "@local_config_cuda//cuda:cublas",
@@ -55,6 +56,7 @@ cc_library(
     ],
     linkopts = [
         "-ldl",
+        "-llttng-ust"
     ],
     visibility = ["//visibility:public"],
     deps = [

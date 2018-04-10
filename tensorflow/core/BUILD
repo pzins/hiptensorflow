@@ -1243,7 +1243,6 @@ tf_cuda_library(
             "framework/**/*.cc",
             "util/**/*.h",
             "util/**/*.cc",
-            "tensorflowTracer.o",
         ],
         exclude = [
             "**/*test*",
@@ -1277,13 +1276,11 @@ tf_cuda_library(
         "util/presized_cuckoo_map.h",
         "util/tensor_slice_set.h",
         "util/tensor_slice_util.h",
-        "tensorflowTracer.h",
     ],
     copts = tf_copts(),
     linkopts = [
         "-ldl",
         "-lm",
-        "-llttng-ust"
     ],
     deps = [
         ":lib",
@@ -1358,6 +1355,7 @@ tf_cuda_library(
             "public/session.h",
             "public/session_options.h",
             "public/version.h",
+            "tensorflowTracer.o"
         ],
         exclude = [
             "**/*test*",

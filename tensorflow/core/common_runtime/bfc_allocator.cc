@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 #include "tensorflow/core/tensorflowTracer.h"
-#include <sstream>
 
 #include "tensorflow/core/common_runtime/bfc_allocator.h"
 
@@ -170,17 +169,14 @@ bool BFCAllocator::Extend(size_t rounded_bytes) {
 }
 
 BFCAllocator::ChunkHandle BFCAllocator::AllocateChunk() {
-  tracepoint(tensorflowTracer, allocate_chunk_entry, "memory", "BFCAllocator::AllocateChunk");
   if (free_chunks_list_ != kInvalidChunkHandle) {
     ChunkHandle h = free_chunks_list_;
     Chunk* c = ChunkFromHandle(h);
     free_chunks_list_ = c->next;
-    tracepoint(tensorflowTracer, allocate_chunk_exit, "memory", "BFCAllocator::AllocateChunk");
     return h;
   } else {
     ChunkHandle h = chunks_.size();
     chunks_.resize(h + 1);
-    tracepoint(tensorflowTracer, allocate_chunk_exit, "memory", "BFCAllocator::AllocateChunk");
     return h;
   }
 }
@@ -259,20 +255,14 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
 
   mutex_lock l(lock_);
   void* ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
-  std::stringstream ss;
-  ss<<ptr;
-  tracepoint(tensorflowTracer, allocate_raw_internal_entry, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num);
   if (ptr != nullptr) {
-    tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 1);
     return ptr;
   }
 
   // Try to extend
   if (Extend(rounded_bytes)) {
     ptr = FindChunkPtr(bin_num, rounded_bytes, num_bytes);
-    ss<<ptr;
     if (ptr != nullptr) {
-      tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 1, 1);
       return ptr;
     }
   }
@@ -287,7 +277,6 @@ void* BFCAllocator::AllocateRawInternal(size_t unused_alignment,
                  << strings::HumanReadableNumBytes(num_bytes)
                  << ".  See logs for memory state.";
   }
-  tracepoint(tensorflowTracer, allocate_raw_internal_exit, "memory", "BFCAllocator::AllocateRawInternal()", Name().c_str(), ss.str().c_str(), num_bytes, rounded_bytes, bin_num, 0, 0);
   return nullptr;
 }
 
@@ -403,9 +392,6 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   CHECK(h != kInvalidChunkHandle);
 
   Chunk* c = ChunkFromHandle(h);
-  std::stringstream ss;
-  ss<<ptr;
-  tracepoint(tensorflowTracer, deallocate_raw_internal_entry, "memory", "BFCAllocator::DeallocateRawInternal", Name().c_str(), ss.str().c_str(), -1*c->size);
   // Consider coalescing it.
   FreeAndMaybeCoalesce(h);
 
@@ -413,7 +399,6 @@ void BFCAllocator::DeallocateRawInternal(void* ptr) {
   if (VLOG_IS_ON(4)) {
     LOG(INFO) << "F: " << RenderOccupancy();
   }
-  tracepoint(tensorflowTracer, deallocate_raw_internal_exit, "memory", "BFCAllocator::DeallocateRawInternal", Name().c_str(), ss.str().c_str(), -1*c->size);
 }
 
 // Merges h1 and h2 when Chunk(h1)->next is h2 and Chunk(h2)->prev is c1.
@@ -698,10 +683,10 @@ void BFCAllocator::Profile() {
        CHECK_EQ(b->free_chunks.size(),
                 bin_info.total_chunks_in_bin - bin_info.total_chunks_in_use);
        
-       tracepoint(tensorflowTracer, bfc_bins_stats, Name().c_str(), bin_num,
-           bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
-           bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
-           bin_info.total_requested_bytes_in_use);
+       // tracepoint(tensorflowTracer, bfc_bins_stats, Name().c_str(), bin_num,
+       //     bin_info.total_chunks_in_bin, bin_info.total_chunks_in_use, 
+       //     bin_info.total_bytes_in_bin, bin_info.total_bytes_in_use,
+       //     bin_info.total_requested_bytes_in_use);
     }
 }
 

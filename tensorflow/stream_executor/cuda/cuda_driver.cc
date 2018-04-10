@@ -20,6 +20,7 @@ limitations under the License.
 #include <stdlib.h>
 #include <set>
 
+#include "tensorflow/core/tensorflowTracer.h"
 #include "tensorflow/stream_executor/platform/port.h"
 #include "tensorflow/stream_executor/cuda/cuda_diagnostics.h"
 #include "tensorflow/stream_executor/dso_loader.h"
@@ -1061,6 +1062,9 @@ CUDADriver::ContextGetSharedMemConfig(CudaContext* context) {
   void *ptr = reinterpret_cast<void *>(result);
   VLOG(2) << "allocated " << ptr << " for context " << context << " of "
           << bytes << " bytes";
+  std::stringstream ss;
+  ss<<result;
+  tracepoint(tensorflowTracer, memory_allocate, "gpu", ss.str().c_str(), bytes);
   return result;
 }
 
@@ -1075,6 +1079,9 @@ CUDADriver::ContextGetSharedMemConfig(CudaContext* context) {
                << "; result: " << ToString(res);
   } else {
     VLOG(2) << "deallocated " << location << " for context " << context;
+    std::stringstream ss;
+    ss<<location;
+    tracepoint(tensorflowTracer, memory_deallocate, "gpu", ss.str().c_str(), 0);
   }
 }
 
@@ -1089,6 +1096,9 @@ CUDADriver::ContextGetSharedMemConfig(CudaContext* context) {
     LOG(ERROR) << "failed to alloc " << bytes
                << " bytes on host: " << ToString(res);
   }
+  std::stringstream ss;
+  ss<<host_mem;
+  tracepoint(tensorflowTracer, memory_allocate, "cpu", ss.str().c_str(), bytes);
   return host_mem;
 }
 
@@ -1100,6 +1110,9 @@ CUDADriver::ContextGetSharedMemConfig(CudaContext* context) {
     LOG(ERROR) << "error deallocating host memory at " << location << ": "
                << ToString(res);
   }
+  std::stringstream ss;
+  ss<<location;
+  tracepoint(tensorflowTracer, memory_deallocate, "cpu", ss.str().c_str(), 0);
 }
 
 /* static */ bool CUDADriver::HostRegister(CudaContext* context, void *location,
