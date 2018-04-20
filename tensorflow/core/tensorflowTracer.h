@@ -10,6 +10,32 @@
 #include <lttng/tracepoint.h>
 
 
+
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    rdv_send,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+TRACEPOINT_EVENT(
+    tensorflowTracer,
+    rdv_recv,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+    )
+)
+
 // Tracepoints : entry / exit
 TRACEPOINT_EVENT(
     tensorflowTracer,

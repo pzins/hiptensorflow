@@ -162,7 +162,6 @@ void GPUUtil::SetProtoFromGPU(const Tensor& tensor, Device* dev,
     void* src_ptr = GetBase(&tensor);
     DeviceMemoryBase gpu_src_ptr(src_ptr, total_bytes);
     send_device_to_host_stream->ThenMemcpy(buf, gpu_src_ptr, total_bytes);
-    std::cout << "total_bytes>0" << std::endl;
   }
   // Use of tensor may outlive stack scope, so keep a ref.
   TensorReference tensor_ref(tensor);

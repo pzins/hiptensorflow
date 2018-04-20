@@ -8,7 +8,35 @@
 #define _grpcTracer_H
 
 #include <lttng/tracepoint.h>
+TRACEPOINT_EVENT(
+    grpcTracer,
+    EncodeRecvTensorResponseToByteBuffer,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg,
+        uint64_t, size_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+        ctf_integer(uint64_t, size, size_arg)
+    )
+)
 
+TRACEPOINT_EVENT(
+    grpcTracer,
+    EncodeTensorToByteBuffer,
+    TP_ARGS(
+        const char*, cat_arg,
+        const char*, name_arg,
+        uint64_t, size_arg
+    ),
+    TP_FIELDS(
+        ctf_string(cat, cat_arg)
+        ctf_string(name, name_arg)
+        ctf_integer(uint64_t, size, size_arg)
+    )
+)
 
 // Sending and receiving request tracepoint
 // For GetStatusAsync, RegisterGraphAsync, DeregisterGraphAsync, RunGraphAsync, 

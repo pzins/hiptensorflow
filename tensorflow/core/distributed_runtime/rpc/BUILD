@@ -104,7 +104,7 @@ cc_library(
 cc_library(
     name = "grpc_tensor_coding",
     srcs = ["grpc_tensor_coding.cc"],
-    hdrs = ["grpc_tensor_coding.h"],
+    hdrs = ["grpc_tensor_coding.h", "grpcTracer.h"],
     deps = [
         "//tensorflow/core:core_cpu_internal",
         "//tensorflow/core:framework",
@@ -113,6 +113,7 @@ cc_library(
         "//tensorflow/core:worker_proto_cc",
         "@grpc//:grpc++_unsecure",
     ],
+    linkopts = ["-ldl", "-llttng-ust"]
 )
 
 cc_library(

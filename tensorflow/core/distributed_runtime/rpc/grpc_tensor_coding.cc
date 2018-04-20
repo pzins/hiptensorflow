@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+#include "tensorflow/core/distributed_runtime/rpc/grpcTracer.h"
 #include "tensorflow/core/distributed_runtime/rpc/grpc_tensor_coding.h"
 #include "grpc++/support/byte_buffer.h"
 #include "grpc++/support/slice.h"
@@ -36,6 +36,7 @@ static void unref_tensorreference(void* raw) {
 void EncodeRecvTensorResponseToByteBuffer(const RecvTensorResponse& proto,
                                           ::grpc::ByteBuffer* result) {
   size_t len = proto.ByteSize();
+  tracepoint(grpcTracer, EncodeRecvTensorResponseToByteBuffer, "grpc_coding", "EncodeRecvTensorResponseToByteBuffer", (uint64_t) len);
   gpr_slice s = gpr_slice_malloc(len);
   proto.SerializeWithCachedSizesToArray(
       reinterpret_cast<uint8*>(GPR_SLICE_START_PTR(s)));
@@ -260,6 +261,8 @@ void EncodeTensorToByteBuffer(bool is_dead, const Tensor& val,
       total_bytes += slices[i].size();
     }
     CHECK_EQ(total_bytes, expected_size);
+    tracepoint(grpcTracer, EncodeTensorToByteBuffer, "grpc_coding", "EncodeTensorToByteBuffer", (uint64_t) total_bytes);
+
 
     *result = ::grpc::ByteBuffer(&slices[0], num_slices);
   }

@@ -1276,11 +1276,13 @@ tf_cuda_library(
         "util/presized_cuckoo_map.h",
         "util/tensor_slice_set.h",
         "util/tensor_slice_util.h",
+        "tensorflowTracer.h"
     ],
     copts = tf_copts(),
     linkopts = [
         "-ldl",
-        "-lm",
+        "-lm", 
+        "-llttng-ust"
     ],
     deps = [
         ":lib",
