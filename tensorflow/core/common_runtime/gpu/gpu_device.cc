@@ -18,9 +18,8 @@ limitations under the License.
 #if GOOGLE_CUDA
 #include "cuda/include/hip/hip_runtime.h"
 #define EIGEN_USE_GPU
-#include "tensorflow/core/tensorflowTracer.h"
+
 #include "tensorflow/core/common_runtime/gpu/gpu_device.h"
-#include "tensorflow/core/common_runtime/bfc_allocator.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -309,7 +308,6 @@ Status BaseGPUDevice::FillContextMap(const Graph* graph,
 }
 
 void BaseGPUDevice::Compute(OpKernel* op_kernel, OpKernelContext* context) {
-
   // ScopedActivity is cheap when tracing is not active, but we
   // can avoid computing the Hash64.
   // TODO(pbar) This would no longer be needed if Ops have a unique id.

@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include "tensorflow/core/tensorflowTracer.h"
 #include "tensorflow/stream_executor/cuda/cuda_driver.h"
 
 #include <map>
@@ -20,7 +21,6 @@ limitations under the License.
 #include <stdlib.h>
 #include <set>
 
-#include "tensorflow/core/tensorflowTracer.h"
 #include "tensorflow/stream_executor/platform/port.h"
 #include "tensorflow/stream_executor/cuda/cuda_diagnostics.h"
 #include "tensorflow/stream_executor/dso_loader.h"

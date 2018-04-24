@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+
 #include "grpcTracer.h"
 #include "tensorflow/core/distributed_runtime/rpc/grpc_remote_worker.h"
 
@@ -138,9 +139,9 @@ class GrpcRemoteWorker : public WorkerInterface {
     } else {
       wrapper_done = [this, request, req_copy, response, done,
                       start_usec](Status s) {
-      const string& key = request->rendezvous_key();
-      std::vector<string> key_parts = str_util::Split(key, ';');
-      tracepoint(grpcTracer, send_request_tensor_end, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
+        const string& key = request->rendezvous_key();
+        std::vector<string> key_parts = str_util::Split(key, ';');
+        tracepoint(grpcTracer, send_request_tensor_end, "grpc_send_request_tensor", "send_request_tensor", key.c_str());
         if (logger_->LoggingActive()) {
           int64 end_usec = Env::Default()->NowMicros();
           int64 step_id = request->step_id();
@@ -256,7 +257,6 @@ class GrpcRemoteWorker : public WorkerInterface {
   void IssueRequest(const RequestMessage* request, ResponseMessage* response,
                     const ::grpc::RpcMethod& method, StatusCallback done,
                     CallOptions* call_opts = nullptr) {
-                        // tracepoint(grpcTracer, send_request, "request");
 
     auto state = new RPCState<RequestMessage, ResponseMessage>(
         channel_.get(), cq_, method, *request, std::move(done), call_opts);

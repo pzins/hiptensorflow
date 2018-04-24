@@ -15,7 +15,6 @@ limitations under the License.
 #include "tensorflow/core/tensorflowTracer.h"
 
 #include "tensorflow/core/common_runtime/executor.h"
-#include <thread>
 #include <atomic>
 #include <deque>
 #include <memory>
@@ -1563,7 +1562,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           std::string st =  "operation_async_" + device->name();
           NodeExecStats* stats = state->stats;      // Shorthand
           // if(stats)
-            tracepoint(tensorflowTracer, async_operation_end, st.c_str(), device->name().c_str(), state->tagged_node.node->name().c_str());
+          tracepoint(tensorflowTracer, async_operation_end, st.c_str(), device->name().c_str(), state->tagged_node.node->name().c_str());
           Entry* first_input = state->first_input;  // Shorthand
 
           if (vlog_) {
