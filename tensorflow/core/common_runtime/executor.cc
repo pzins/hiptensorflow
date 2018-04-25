@@ -1561,7 +1561,6 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           Device* device = impl_->params_.device;
           std::string st =  "operation_async_" + device->name();
           NodeExecStats* stats = state->stats;      // Shorthand
-          // if(stats)
           tracepoint(tensorflowTracer, async_operation_end, st.c_str(), device->name().c_str(), state->tagged_node.node->name().c_str());
           Entry* first_input = state->first_input;  // Shorthand
 
@@ -1603,7 +1602,6 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         };
         if (stats) nodestats::SetOpStart(stats);
         std::string st =  "operation_async_" + device->name();
-        // if(stats_collector_)
         tracepoint(tensorflowTracer, async_operation_start, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
         device->ComputeAsync(async, &state->ctx, done);
       } else {
@@ -1611,10 +1609,8 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         OpKernelContext ctx(&params, item.num_outputs);
         if (stats) nodestats::SetOpStart(stats);
         std::string st =  "operation_sync_" + device->name();
-        // if(stats_collector_)
         tracepoint(tensorflowTracer, operation_start, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
-        // if(stats_collector_)
         tracepoint(tensorflowTracer, operation_end, st.c_str(), device->name().c_str(), op_kernel->name().c_str());
 
         if (stats) nodestats::SetOpEnd(stats);
